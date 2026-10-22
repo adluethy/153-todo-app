@@ -11,7 +11,10 @@ Der Ordner liegt in Dropbox und wird an mehreren PCs bearbeitet.
 - Module hängen sich an `window`: `APP_CONFIG` (config.js), `Icon`, `App.toast` (ui.js), `Store` (store.js),
   `Notes` (notes.js), `Sync` (sync.js). Reihenfolge der Scripts in `index.html` beachten.
 - Kein Dunkelmodus (vom Nutzer nicht gewünscht).
-- Neue App-Dateien in `sw.js` → `FILES` eintragen und `CACHE`-Version erhöhen.
+- **Bei jeder Änderung an CSS/JS:** in `index.html` die Version `?v=N` bei *allen* CSS/JS-Links
+  um eins erhöhen und in `sw.js` die `CACHE`-Version gleich setzen. Sonst mischt der Browser
+  nach einem Update bis zu 10 Minuten alte und neue Dateien (GitHub Pages speichert 10 Min zwischen).
+  Aktuell: `v=3`. Neue App-Dateien zusätzlich in `sw.js` → `FILES` eintragen.
 - LIESMICH.md bei jeder Änderung am Funktionsumfang oder Stand nachführen (Nutzer wünscht das).
 
 ## Vom Nutzer festgelegt

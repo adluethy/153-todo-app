@@ -362,7 +362,7 @@
   /* ---------- Start ---------- */
 
   async function start() {
-    if (!window.supabase || !cfg.supabaseUrl) {
+    if (!window.supabase || !cfg.supabaseUrl || !Store._sync) {
       // Bibliothek nicht geladen (z.B. offline beim ersten Start): nur lokal arbeiten
       setStatus(localStorage.getItem(USER_KEY) ? 'offline' : 'local');
       return;
@@ -393,7 +393,7 @@
     }
   }
 
-  Store._sync.onDirty(markDirty);
+  if (Store._sync) Store._sync.onDirty(markDirty);
 
   window.addEventListener('online', () => {
     if (user) flush().then(pull);
