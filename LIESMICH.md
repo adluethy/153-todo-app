@@ -6,6 +6,7 @@ Läuft auf dem PC, den zwei Laptops und dem Android-Handy, mit denselben Daten �
 ## Starten
 
 - **Online (empfohlen):** https://adluethy.github.io/153-todo-app/
+  Verknüpfung zum Doppelklicken: `To-do & Zettel (online).url` hier im Ordner.
 - **Am PC aus Dropbox:** Doppelklick auf `index.html`. Die App öffnet sich im Browser (Chrome oder Edge).
 
 Beim ersten Start auf jedem Gerät (und in jedem Browser) einmal anmelden. Danach bleibst du angemeldet.
@@ -81,6 +82,7 @@ Neue Registrierungen sind in Supabase gesperrt, nur dein Benutzer kann sich anme
 
 | Datei | Inhalt |
 |---|---|
+| `To-do & Zettel (online).url` | Verknüpfung, öffnet die Online-Version im Browser |
 | `index.html` | Seitengerüst |
 | `css/style.css` | Gestaltung, inkl. Handy-Ansicht |
 | `js/config.js` | Adresse und öffentlicher Schlüssel der Datenbank |
