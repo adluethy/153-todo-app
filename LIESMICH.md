@@ -118,6 +118,7 @@ Gut zu wissen:
 | `js/app.js` | Ansicht wechseln, Menü, Export/Import |
 | `supabase/schema.sql` | Tabellen und Zugriffsrechte für die Online-Datenbank (im Supabase-Dashboard ausführen, darf mehrmals laufen) |
 | `manifest.webmanifest`, `sw.js`, `icons/` | Damit sich die App installieren lässt und ohne Internet startet |
+| `icon-entwuerfe/` | Die vier Icon-Entwürfe und `icon_bauen.py`, das die Dateien in `icons/` erzeugt (nur in Dropbox, nicht auf GitHub) |
 | `.gitignore` | Was nicht auf GitHub soll (z.B. Daten-Sicherungen) |
 | `CLAUDE.md` | Hinweise für Claude, damit es am anderen PC nahtlos weitergeht |
 

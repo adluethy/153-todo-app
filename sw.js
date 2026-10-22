@@ -2,7 +2,7 @@
    Eigene Dateien: immer zuerst aus dem Netz laden (Änderungen kommen sofort an),
    ohne Internet die zuletzt geladene Version aus dem Zwischenspeicher nehmen.
    Anfragen an die Datenbank werden nie zwischengespeichert. */
-const CACHE = 'todo-zettel-v4';
+const CACHE = 'todo-zettel-v5';
 const FILES = [
   './',
   './index.html',
@@ -17,6 +17,7 @@ const FILES = [
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './icons/favicon-64.png',
 ];
 // Datenbank-Bibliothek: feste Version, ändert sich nie, darum zuerst aus dem Zwischenspeicher
 const LIBRARY = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js';

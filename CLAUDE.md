@@ -15,7 +15,11 @@ Der Ordner liegt in Dropbox und wird an mehreren PCs bearbeitet.
 - **Bei jeder Änderung an CSS/JS:** in `index.html` die Version `?v=N` bei *allen* CSS/JS-Links
   um eins erhöhen und in `sw.js` die `CACHE`-Version gleich setzen. Sonst mischt der Browser
   nach einem Update bis zu 10 Minuten alte und neue Dateien (GitHub Pages speichert 10 Min zwischen).
-  Aktuell: `v=4`. Neue App-Dateien zusätzlich in `sw.js` → `FILES` eintragen.
+  Aktuell: `v=5`. Neue App-Dateien zusätzlich in `sw.js` → `FILES` eintragen.
+- App-Icon (seit 22.10.2026, v=5): Mathefrosch (Favicon von mathefrosch.com) vor blauem und gelbem Zettel,
+  vom Nutzer aus vier Entwürfen gewählt. Alle Dateien in `icons/` erzeugt `icon-entwuerfe/icon_bauen.py`
+  (Ordner nur in Dropbox, per `.git/info/exclude` nicht auf GitHub). Nach neuem Icon Version erhöhen;
+  iPhone übernimmt es erst nach Löschen und Neu-Hinzufügen der App.
 - LIESMICH.md bei jeder Änderung am Funktionsumfang oder Stand nachführen (Nutzer wünscht das).
 
 ## Vom Nutzer festgelegt
