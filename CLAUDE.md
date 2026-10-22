@@ -27,6 +27,9 @@ Der Ordner liegt in Dropbox und wird an mehreren PCs bearbeitet.
 - Handy (≤ 760 px): Umschalten To-do/Zettel unten, Zettel als Stapel.
 - Keine Suche nötig.
 - Geräte: 1 PC, 2 Laptops, 1 Android-Handy. Nur für eine Person.
+- Hosting GitHub Pages + Datenbank Supabase bleiben (Entscheid 22.10.2026). Vercel geprüft und verworfen:
+  Neon hat kein Login/RLS/Realtime eingebaut, Vercel-Cron im Gratis-Plan nur 1× pro Tag (±59 Min),
+  untauglich für Push-Erinnerungen. Öffentliches Repo ist ok (Daten sind privat in Supabase).
 
 ## Konten und Adressen
 
