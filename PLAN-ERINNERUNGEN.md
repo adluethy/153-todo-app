@@ -1,8 +1,8 @@
 # Plan Phase 3: Erinnerungen per Push
 
-Stand 22.10.2026, mit Adrian besprochen. **Gebaut und getestet (v=6), noch nicht live**:
+Stand 22.10.2026, mit Adrian besprochen. **Live seit 22.10.2026 (v=6)**, gebaut und getestet:
 SQL mit PGlite geprüft (26 Fälle), Dienst lokal geprüft (16 Fälle) und auf Vercel hochgeladen
-(https://153-todo-push.vercel.app). Was zum Livegang fehlt: siehe CLAUDE.md, Fahrplan Punkt 3.
+(https://153-todo-push.vercel.app). Offen: siehe CLAUDE.md, Fahrplan Punkt 3.
 
 ## Entscheide
 

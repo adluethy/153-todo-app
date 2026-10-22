@@ -128,7 +128,7 @@ Gut zu wissen:
   - [ ] Zu zweit: Barbaras Konto anlegen und eintragen, sie installiert die App
 - [ ] **Phase 3:** Termine mit Push-Erinnerung (Plan: `PLAN-ERINNERUNGEN.md`)
   - [x] Schalter A/B, Datenbank, Dienst auf Vercel, Menü in der App gebaut und getestet (22.10.2026)
-  - [ ] `schema.sql` in Supabase ausführen, Geheimwerte in Vercel eintragen, App hochladen
+  - [x] `schema.sql` in Supabase ausgeführt, Geheimwerte in Vercel eingetragen, App online (22.10.2026)
   - [ ] Auf jedem Gerät Erinnerungen einschalten und testen; Barbaras Anleitung nachführen
 
 ## Dateien

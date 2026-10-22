@@ -132,12 +132,12 @@ Abgleich (sync.js):
    - Zu zweit (v=4, 22.10.2026): Code online, `schema.sql` ausgeführt (vorher lokal mit PGlite
      geprüft), Adrian per `add_person` eingetragen. Offen: Barbaras Benutzer anlegen und eintragen,
      Test mit zwei Anmeldungen.
-3. Push-Erinnerungen für Termine – **gebaut, noch nicht live** (22.10.2026, v=6). Plan und Entscheide:
-   `PLAN-ERINNERUNGEN.md`. SQL mit PGlite und Dienst lokal getestet, Dienst auf Vercel hochgeladen.
-   Reihenfolge zum Livegang: (1) Nutzer führt `schema.sql` aus, (2) Nutzer trägt die drei Geheimwerte in
-   Vercel ein, (3) Dienst neu hochladen (Env gilt erst für neue Deployments), (4) App v=6 pushen –
-   **nicht vorher**, sonst scheitert der Upload an der fehlenden Spalte `assignees`,
-   (5) auf jedem Gerät Erinnerungen einschalten und Test-Mitteilung senden, (6) Barbaras Anleitung nachführen.
+3. Push-Erinnerungen für Termine – **live seit 22.10.2026** (v=6, Commit d4dc0e1). Plan und Entscheide:
+   `PLAN-ERINNERUNGEN.md`. `schema.sql` ausgeführt, Geheimwerte in Vercel, Cron antwortet seit 13:05 mit 200
+   (`vercel logs --project 153-todo-push --since 15m --json`). Lehre: Env-Variablen gelten erst nach neuem
+   Hochladen des Dienstes; App mit neuen Spalten erst nach dem SQL pushen.
+   Offen: auf jedem Gerät Erinnerungen einschalten und Test-Mitteilung senden (erste echte Zustellung
+   ungetestet), Barbaras Anleitung nachführen (Schalter A/B, Erinnerungen auf dem iPhone).
 
 ## Testen
 
