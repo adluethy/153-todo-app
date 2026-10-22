@@ -151,8 +151,9 @@ Gut zu wissen:
   - [ ] Laptops und Barbaras iPhone einschalten
 - [ ] **Reiter Adrian, Barbara und Gemmel** (v=7, Entwurf in `entwurf-reiter/`)
   - [x] Gebaut und getestet: Reiter, Filter, Zettel verschieben, Ablage pro Reiter (22.10.2026)
-  - [ ] `supabase/schema.sql` im SQL Editor ausführen (neues Feld `space` bei den Zetteln)
-  - [ ] Erst danach online stellen
+  - [x] `supabase/schema.sql` im SQL Editor ausgeführt (neues Feld `space` bei den Zetteln, 22.10.2026)
+  - [x] Online seit 22.10.2026
+  - [ ] Auf den eigenen Geräten ausprobieren (App neu laden bzw. schliessen und wieder öffnen)
   - [ ] Barbaras Anleitung nachführen
 
 ## Dateien

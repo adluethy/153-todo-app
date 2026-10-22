@@ -157,8 +157,9 @@ Abgleich (sync.js):
 4. **Reiter Adrian/Barbara/Gemmel (v=7):** gebaut und lokal getestet am 22.10.2026 (Filter, neue Einträge,
    A/B-Umschalten, Idee → Aufgabe, Verschieben-Menü, Sortieren, Handy-Ansicht, ohne Anmeldung).
    SQL-Teil `notes.space` mit PGlite geprüft (zweimal ausführbar, alte App-Version harmlos).
-   **Offen, in dieser Reihenfolge:** Nutzer führt `schema.sql` aus → erst dann pushen (sonst schlägt
-   das Hochladen der Zettel fehl, weil `space` fehlt) → Barbaras Anleitung nachführen.
+   `schema.sql` vom Nutzer ausgeführt (Feld per REST geprüft), **online seit 22.10.2026** (Commit 009befb),
+   Online-Version lädt v=7 ohne Fehler. Lehre bestätigt: neue Spalten erst in Supabase, dann pushen.
+   Offen: Test mit echter Anmeldung durch den Nutzer, Barbaras Anleitung nachführen.
 
 ## Testen
 
