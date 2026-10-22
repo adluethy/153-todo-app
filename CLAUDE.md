@@ -27,9 +27,17 @@ Der Ordner liegt in Dropbox und wird an mehreren PCs bearbeitet.
 - Handy (≤ 760 px): Umschalten To-do/Zettel unten, Zettel als Stapel.
 - Keine Suche nötig.
 - Geräte: 1 PC, 2 Laptops, 1 Android-Handy. Nur für eine Person.
-- Hosting GitHub Pages + Datenbank Supabase bleiben (Entscheid 22.10.2026). Vercel geprüft und verworfen:
-  Neon hat kein Login/RLS/Realtime eingebaut, Vercel-Cron im Gratis-Plan nur 1× pro Tag (±59 Min),
-  untauglich für Push-Erinnerungen. Öffentliches Repo ist ok (Daten sind privat in Supabase).
+- Hosting GitHub Pages + Datenbank Supabase bleiben vorerst (Entscheid 22.10.2026).
+  Öffentliches Repo ist ok (Daten sind privat in Supabase).
+- **Der Nutzer hat einen bezahlten Vercel-Account (Pro)** und möchte, dass dessen Möglichkeiten bei
+  künftigen Vorschlägen berücksichtigt werden. Vorbild: mathefrosch.com (`Dropbox\150-Mathefrosch-2026`,
+  Next.js 16 auf Vercel, Neon-Postgres über Vercel Storage, Vercel Blob, Region `fra1`).
+  Mit Pro verfügbar: Cron bis minütlich, Serverless Functions, Deployments aus privaten Repos, Env-Variablen.
+  - Für Phase 3 (Push) ist daher **Vercel Cron + Function** eine echte Option neben Supabase Cron + Edge Function
+    (z.B. Function mit `web-push`, liest fällige Termine mit dem Supabase-Secret-Key aus einer Vercel-Env-Variable).
+  - Datenbank bleibt Supabase: Login, RLS und Realtime sind dort eingebaut; Neon hätte das nicht.
+  - Hosting könnte zu Vercel wechseln, falls der Code privat werden soll.
+  - Lehre aus Mathefrosch: `next dev` nie im Dropbox-Ordner laufen lassen (Datei-Sperren unter Windows).
 
 ## Konten und Adressen
 
@@ -72,8 +80,9 @@ Abgleich (sync.js):
 1. **Erledigt:** Prototyp, Daten lokal.
 2. **Fast erledigt:** Supabase-Abgleich, GitHub Pages, PWA (getestet am 22.10.2026).
    Offen: Installation auf Handy/Laptops durch den Nutzer.
-3. Push-Erinnerungen für Termine: Web Push (VAPID) + Supabase Cron + Edge Function,
-   neue Tabelle für Push-Abos.
+3. Push-Erinnerungen für Termine: Web Push (VAPID), neue Tabelle für Push-Abos.
+   Versand entweder Supabase Cron + Edge Function oder Vercel Cron + Function (Nutzer hat Vercel Pro);
+   vor dem Bauen mit dem Nutzer entscheiden.
 
 ## Testen
 
