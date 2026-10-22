@@ -160,7 +160,7 @@ Abgleich (sync.js):
    `schema.sql` vom Nutzer ausgeführt (Feld per REST geprüft), **online seit 22.10.2026** (Commit 009befb),
    Online-Version lädt v=7 ohne Fehler. Lehre bestätigt: neue Spalten erst in Supabase, dann pushen.
    Barbaras Anleitung auf v=7 nachgeführt (5 S., neue Seite 4 «Drei Reiter», Bilder mit Reiter Barbara).
-   Offen: Test mit echter Anmeldung durch den Nutzer.
+   Test mit echter Anmeldung: Nutzer bestätigt „funktioniert bestens“ (22.10.2026). **Erledigt.**
 
 ## Testen
 

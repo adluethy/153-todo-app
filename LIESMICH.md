@@ -153,7 +153,7 @@ Gut zu wissen:
   - [x] Gebaut und getestet: Reiter, Filter, Zettel verschieben, Ablage pro Reiter (22.10.2026)
   - [x] `supabase/schema.sql` im SQL Editor ausgeführt (neues Feld `space` bei den Zetteln, 22.10.2026)
   - [x] Online seit 22.10.2026
-  - [ ] Auf den eigenen Geräten ausprobieren (App neu laden bzw. schliessen und wieder öffnen)
+  - [x] Auf den eigenen Geräten ausprobiert: funktioniert (22.10.2026)
   - [x] Barbaras Anleitung nachgeführt: neue Seite «Drei Reiter», alle Bilder neu (5 Seiten, 22.10.2026)
 
 ## Dateien
