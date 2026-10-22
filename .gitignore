@@ -1,0 +1,12 @@
+# Windows und Dropbox
+desktop.ini
+Thumbs.db
+.dropbox
+.dropbox.attr
+
+# Persönliche Daten nie veröffentlichen (Sicherungen aus dem Menü "Daten sichern")
+todo-zettel-sicherung-*.json
+sicherungen/
+
+# Lokale Claude-Einstellungen
+.claude/settings.local.json
