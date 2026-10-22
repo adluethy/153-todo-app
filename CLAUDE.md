@@ -8,8 +8,11 @@ Der Ordner liegt in Dropbox und wird an mehreren PCs bearbeitet.
 - Oberfläche und Doku auf Deutsch, Schweizer Schreibweise: **kein ß** (schliessen, Grösse).
 - Kein Build-Schritt, kein npm: reines HTML/CSS/JavaScript.
 - Klassische `<script>`-Tags, **keine ES-Module**: Die App muss per Doppelklick (`file://`) laufen.
-- Module hängen sich an `window`: `Icon`, `App.toast` (ui.js), `Store` (store.js), `Notes` (notes.js).
+- Module hängen sich an `window`: `APP_CONFIG` (config.js), `Icon`, `App.toast` (ui.js), `Store` (store.js),
+  `Notes` (notes.js), `Sync` (sync.js). Reihenfolge der Scripts in `index.html` beachten.
 - Kein Dunkelmodus (vom Nutzer nicht gewünscht).
+- Neue App-Dateien in `sw.js` → `FILES` eintragen und `CACHE`-Version erhöhen.
+- LIESMICH.md bei jeder Änderung am Funktionsumfang oder Stand nachführen (Nutzer wünscht das).
 
 ## Vom Nutzer festgelegt
 
@@ -22,37 +25,55 @@ Der Ordner liegt in Dropbox und wird an mehreren PCs bearbeitet.
 - Keine Suche nötig.
 - Geräte: 1 PC, 2 Laptops, 1 Android-Handy. Nur für eine Person.
 
-## Daten (store.js)
+## Konten und Adressen
 
-localStorage-Schlüssel `todo-zettel.v1`:
+- GitHub: `adluethy`, Repo https://github.com/adluethy/153-todo-app (öffentlich, Branch `main`).
+- Online: https://adluethy.github.io/153-todo-app/ (GitHub Pages aus `main` / root).
+- Supabase: Projekt `153-todo-app`, https://klwumomqtygqnxoomdbv.supabase.co (Konto über GitHub-Login).
+  Publishable Key steht in `js/config.js` (öffentlich gedacht). Secret-/service_role-Schlüssel nie ins Repo.
+- App-Login: E-Mail + Passwort, Benutzer im Supabase-Dashboard angelegt, Registrierung gesperrt.
+  Claude gibt nie Passwörter ein: Für Tests mit Login meldet sich der Nutzer im Browser-Fenster selbst an.
+
+## Daten
+
+Lokal (store.js), localStorage-Schlüssel `todo-zettel.v1`:
 
 ```
 { version: 1,
-  todos: [{ id, text, done, dueAt (ISO|null), order, createdAt, updatedAt }],
-  notes: [{ id, type: 'idee'|'info', text, x, y (Anteil 0–1 der Fläche), w, h (px), z,
+  todos: [{ id (UUID), text, done, dueAt (ISO|null), order, createdAt, updatedAt }],
+  notes: [{ id (UUID), type: 'idee'|'info', text, x, y (Anteil 0–1 der Fläche), w, h (px), z,
             archived, archivedAt, convertedAt, createdAt, updatedAt }] }
 ```
 
-`Store.updateX(id, patch, silent)`: `silent = true` speichert ohne Neuzeichnen (Tippen, Ziehen).
+- `Store.updateX(id, patch, silent)`: `silent = true` speichert ohne Neuzeichnen (Tippen, Ziehen).
+- Jede Änderung meldet `dirty(table, id, 'upsert'|'delete')` an sync.js (`Store._sync`).
+
+Online (Supabase, `supabase/schema.sql`): Tabellen `todos`, `notes`, gleiche Felder in snake_case
+(`order` → `sort_order`), `user_id` mit Default `auth.uid()`, RLS nur eigene Zeilen, Realtime aktiv.
+
+Abgleich (sync.js):
+- Warteschlange `todo-zettel.outbox.v1` (je Eintrag `table:id` → op + Versionszähler), hochgeladen
+  gebündelt per `upsert` / `delete().in()`, bei Fehler alle 15 s neu.
+- Holen (`pull`): ganze Tabellen; Einträge mit offener lokaler Änderung gewinnen, sonst gilt die Datenbank.
+- Live: Realtime `postgres_changes`; ausserdem `pull` beim Zurückkehren in die App und bei `online`.
+- Erstes Anmelden auf einem Gerät (`todo-zettel.user` fehlt): alle lokalen Einträge werden hochgeladen.
+- Abmelden nur lokal (`signOut({ scope: 'local' })`), löscht die lokale Kopie.
+- Supabase-JS per CDN mit fester Version und SRI-Hash (`@supabase/supabase-js@2.117.2`);
+  `sw.js` speichert die Bibliothek für den Offline-Start.
 
 ## Fahrplan
 
 1. **Erledigt:** Prototyp, Daten lokal.
-2. **In Arbeit:** Supabase (Datenbank + Login, Region Europa), nur `store.js` umbauen.
-   Hosting über GitHub Pages. PWA: `manifest.webmanifest`, Service Worker, Icons.
-   - GitHub-Benutzer: `adluethy`. Supabase-Konto am 22.10.2026 angelegt (Login über GitHub).
-   - Tabellen: `supabase/schema.sql` (Spalten in snake_case, Zugriff per RLS nur auf eigene Zeilen).
-   - Login per E-Mail + Passwort, Nutzer im Dashboard angelegt, öffentliche Registrierung aus.
-   - Git-Repository: https://github.com/adluethy/153-todo-app (öffentlich, Branch `main`).
-     Online: https://adluethy.github.io/153-todo-app/ (GitHub Pages, vom Nutzer einzuschalten).
-     Repo liegt in Dropbox: nie gleichzeitig von zwei PCs committen. Keine persönlichen Daten committen.
-   - PWA: `manifest.webmanifest`, `sw.js` (Netz zuerst, offline aus Cache, nur gleiche Herkunft),
-     Icons in `icons/` (erzeugt mit Pillow). Neue App-Dateien in `sw.js` → `FILES` eintragen.
-     Der Browser im Claude-Fenster kann keine Service Worker registrieren, das ist normal.
-   - Supabase-JS per CDN, Version fest angeben (z.B. `@supabase/supabase-js@2.117.2`).
-3. Push-Erinnerungen für Termine: Web Push (VAPID) + Supabase Cron + Edge Function.
+2. **Fast erledigt:** Supabase-Abgleich, GitHub Pages, PWA (getestet am 22.10.2026).
+   Offen: Installation auf Handy/Laptops durch den Nutzer.
+3. Push-Erinnerungen für Termine: Web Push (VAPID) + Supabase Cron + Edge Function,
+   neue Tabelle für Push-Abos.
 
 ## Testen
 
-`.claude/launch.json` startet `python -m http.server 8153`. Der Browser im Claude-Fenster
-kann `file://`-Seiten nicht bedienen, deshalb über den Server testen.
+- `.claude/launch.json` startet `python -m http.server 8153`. Der Browser im Claude-Fenster
+  kann `file://`-Seiten nicht bedienen, deshalb über den Server testen.
+- Der Browser im Claude-Fenster kann keine Service Worker registrieren, das ist normal.
+- Das Browser-Fenster ist oft schmaler als 760 px: Dann zeigt die App die Handy-Ansicht
+  (Zettel nur im Reiter „Zettel“ sichtbar).
+- Screenshots im Browser-Fenster sind manchmal abgeschnitten; Layout lieber per JavaScript prüfen.

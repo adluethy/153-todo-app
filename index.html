@@ -13,12 +13,17 @@
 <body>
   <header class="topbar">
     <h1>To-do &amp; Zettel</h1>
-    <div class="menu-wrap">
-      <button id="menu-btn" type="button" class="icon-btn" data-icon="dots" aria-label="Menü" aria-haspopup="true" aria-expanded="false"></button>
-      <div id="menu" class="menu" hidden>
-        <button type="button" data-action="export" data-icon="download">Daten sichern (Export)</button>
-        <button type="button" data-action="import" data-icon="upload">Sicherung laden (Import)</button>
-        <p class="menu-note">Phase 1: Die Daten liegen nur in diesem Browser. Mit Export und Import nimmst du sie auf ein anderes Gerät mit.</p>
+    <div class="topbar-right">
+      <button id="sync-status" type="button" class="sync-status" aria-live="polite"></button>
+      <div class="menu-wrap">
+        <button id="menu-btn" type="button" class="icon-btn" data-icon="dots" aria-label="Menü" aria-haspopup="true" aria-expanded="false"></button>
+        <div id="menu" class="menu" hidden>
+          <p id="menu-user" class="menu-user" hidden></p>
+          <button type="button" data-action="export" data-icon="download">Daten sichern (Export)</button>
+          <button type="button" data-action="import" data-icon="upload">Sicherung laden (Import)</button>
+          <button type="button" data-action="logout" data-icon="logout" hidden>Abmelden</button>
+          <p class="menu-note">Deine Daten werden online gespeichert und auf allen Geräten abgeglichen. „Daten sichern“ legt zusätzlich eine Kopie als Datei ab.</p>
+        </div>
       </div>
     </div>
   </header>
@@ -70,13 +75,37 @@
     <div id="archive-body" class="archive-body"></div>
   </aside>
 
+  <div id="login" class="login" hidden>
+    <form id="login-form" class="login-card" autocomplete="on">
+      <img src="icons/icon-192.png" alt="" width="48" height="48">
+      <h2>Anmelden</h2>
+      <p>Damit deine Aufgaben und Zettel auf allen Geräten gleich sind.</p>
+      <label>E-Mail
+        <input id="login-email" type="email" autocomplete="username" inputmode="email" required>
+      </label>
+      <label>Passwort
+        <input id="login-password" type="password" autocomplete="current-password" required>
+      </label>
+      <p id="login-error" class="login-error" role="alert" hidden></p>
+      <div class="login-actions">
+        <button id="login-later" type="button" class="btn-link">Später</button>
+        <button id="login-submit" type="submit" class="btn btn-primary">Anmelden</button>
+      </div>
+    </form>
+  </div>
+
   <div id="toast" class="toast" role="status" hidden></div>
   <input id="import-file" type="file" accept=".json,application/json" hidden>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"
+          integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok"
+          crossorigin="anonymous"></script>
+  <script src="js/config.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/store.js"></script>
   <script src="js/todos.js"></script>
   <script src="js/notes.js"></script>
+  <script src="js/sync.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

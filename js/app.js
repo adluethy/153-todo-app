@@ -48,6 +48,7 @@
     toggleMenu(false);
     if (btn.dataset.action === 'export') exportData();
     if (btn.dataset.action === 'import') importInput.click();
+    if (btn.dataset.action === 'logout') Sync.logout();
   });
 
   /* ---------- Sicherung ---------- */
@@ -72,7 +73,7 @@
     try {
       const raw = JSON.parse(await file.text());
       if (!raw || !Array.isArray(raw.todos) || !Array.isArray(raw.notes)) throw new Error('Falsches Format');
-      const ok = confirm(`Sicherung laden? ${raw.todos.length} Aufgaben und ${raw.notes.length} Zettel ersetzen die aktuellen Daten.`);
+      const ok = confirm(`Sicherung laden? ${raw.todos.length} Aufgaben und ${raw.notes.length} Zettel ersetzen die aktuellen Daten, auch auf allen anderen Geräten.`);
       if (!ok) return;
       Store.importData(raw);
       App.toast('Sicherung geladen');
