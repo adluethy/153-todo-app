@@ -1,0 +1,13 @@
+{
+  "name": "153-todo-push",
+  "private": true,
+  "type": "module",
+  "description": "Erinnerungen für To-do & Zettel: schickt jede Minute die fälligen Push-Mitteilungen (Vercel Cron)",
+  "engines": {
+    "node": "24.x"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.2",
+    "web-push": "3.6.7"
+  }
+}

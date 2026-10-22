@@ -128,6 +128,8 @@
 
     // Wer hat den Eintrag erfasst? { userId, name, initial } oder null (unbekannt / nicht angemeldet)
     person: userId => (userId && people.find(p => p.userId === userId)) || null,
+    people: () => people,
+    me: () => me,
 
     subscribe(fn) {
       listeners.add(fn);
@@ -137,11 +139,14 @@
     /* ---------- Aufgaben ---------- */
 
     // userId: wer die Aufgabe erfasst hat (ohne Angabe die angemeldete Person)
-    addTodo(text, dueAt, userId) {
+    // assignees: für wen sie gilt (Schalter A/B; ohne Angabe: wer sie erfasst hat)
+    addTodo(text, dueAt, userId, assignees) {
       const minOrder = data.todos.reduce((m, t) => Math.min(m, t.order), 0);
+      const by = userId || me;
       const todo = {
         id: uid(),
-        userId: userId || me,
+        userId: by,
+        assignees: assignees && assignees.length ? assignees.slice() : (by ? [by] : []),
         text,
         done: false,
         dueAt: dueAt || null,
@@ -262,7 +267,12 @@
         saveNow();
         topics.forEach(emit);
       },
-      setUser(id) { me = id || null; },
+      // Angemeldete Person; neu zeichnen, damit die Schalter A/B im Eingabefeld stimmen
+      setUser(id) {
+        if ((id || null) === me) return;
+        me = id || null;
+        emit('people');
+      },
       // Liste der Personen aus der Datenbank; neu zeichnen nur, wenn sich etwas geändert hat
       setPeople(list) {
         if (JSON.stringify(list) === JSON.stringify(people)) return;

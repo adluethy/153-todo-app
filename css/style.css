@@ -265,15 +265,29 @@ input:focus-visible { outline: 2px solid #b8cff5; border-color: var(--accent); }
 
 .todo-body { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
 .todo-line { align-self: stretch; display: flex; align-items: baseline; min-width: 0; }
-/* "A:" bzw. "B:" = wer die Aufgabe erfasst hat */
-.todo-by {
-  flex: none;
-  padding: 1px 0 1px 4px;
-  font-weight: 600;
+
+/* Schalter A/B: für wen gilt die Aufgabe (eingeschaltet = farbig) */
+.todo-who { flex: none; display: inline-flex; gap: 3px; padding-left: 2px; align-self: center; }
+.who-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
   color: var(--text-soft);
-  cursor: default;
 }
-.todo.done .todo-by { color: var(--text-done); }
+.who-btn:hover { border-color: var(--accent); color: var(--accent); }
+.who-btn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.todo.done .who-btn { color: var(--text-done); }
+.todo.done .who-btn.on { background: var(--text-done); border-color: var(--text-done); color: #fff; }
+.form-who { align-self: center; gap: 4px; padding: 0 2px; }
+.form-who .who-btn { width: 28px; height: 28px; font-size: 13px; }
 .todo-text {
   min-width: 0;
   max-width: 100%;
@@ -302,6 +316,7 @@ input:focus-visible { outline: 2px solid #b8cff5; border-color: var(--accent); }
   color: var(--text-soft);
 }
 .due svg { width: 13px; height: 13px; }
+.due svg + svg { width: 12px; height: 12px; margin-left: 2px; opacity: .7; } /* Glocke = Erinnerung folgt */
 .due:hover { background: #f1f0eb; }
 .due.today { color: var(--accent); }
 .due.overdue { color: var(--danger); }
@@ -563,6 +578,7 @@ input:focus-visible { outline: 2px solid #b8cff5; border-color: var(--accent); }
   .todo-pane { padding: 12px 12px 24px; border-right: none; }
   .todo input[type="checkbox"] { width: 22px; height: 22px; }
   .todo { padding: 9px 2px; }
+  .who-btn { width: 26px; height: 26px; font-size: 12px; }
   .date-editor { padding-left: 0; }
 
   .notes-toolbar { padding: 10px 12px; }

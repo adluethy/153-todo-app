@@ -24,6 +24,13 @@
   let client = null;
   let user = null;
   let channel = null;
+  const authListeners = new Set(); // z.B. push.js: Menü nach An-/Abmelden anpassen
+
+  function notifyAuth() {
+    authListeners.forEach(fn => {
+      try { fn(user); } catch (err) { console.error(err); }
+    });
+  }
   let flushing = false;
   let flushTimer = 0;
   let retryTimer = 0;
@@ -32,10 +39,12 @@
   /* ---------- Umrechnen: App (camelCase) <-> Datenbank (snake_case) ---------- */
 
   // userId / user_id = wer den Eintrag erfasst hat (Adrian oder Barbara)
+  // assignees = für wen die Aufgabe gilt (Schalter A/B), Liste von user_ids
+  // (due_set_at und die Erinnerungen verwaltet die Datenbank selbst, die App schickt sie nie)
   const COLUMNS = {
     todos: {
-      id: 'id', userId: 'user_id', text: 'text', done: 'done', dueAt: 'due_at', order: 'sort_order',
-      createdAt: 'created_at', updatedAt: 'updated_at',
+      id: 'id', userId: 'user_id', assignees: 'assignees', text: 'text', done: 'done', dueAt: 'due_at',
+      order: 'sort_order', createdAt: 'created_at', updatedAt: 'updated_at',
     },
     notes: {
       id: 'id', userId: 'user_id', type: 'type', text: 'text', x: 'x', y: 'y', w: 'w', h: 'h', z: 'z',
@@ -51,6 +60,7 @@
     // user_id immer mitschicken: Ein Upsert mit gemischten Feldern würde sonst Fehler oder falsche Namen geben.
     // Fehlt sie (Eintrag vor dem ersten Anmelden erfasst), gilt die angemeldete Person.
     if (!row.user_id) row.user_id = user.id;
+    if (table === 'todos' && !(row.assignees && row.assignees.length)) row.assignees = [row.user_id];
     return row;
   }
 
@@ -63,8 +73,11 @@
     return item;
   }
 
+  // Listen (assignees) nach Inhalt vergleichen, nicht nach Objekt
+  const value = v => (Array.isArray(v) ? JSON.stringify(v) : v ?? null);
+
   function same(table, a, b) {
-    return Object.keys(COLUMNS[table]).every(key => (a[key] ?? null) === (b[key] ?? null));
+    return Object.keys(COLUMNS[table]).every(key => value(a[key]) === value(b[key]));
   }
 
   /* ---------- Warteschlange ---------- */
@@ -173,7 +186,7 @@
     return changed;
   }
 
-  // Wer macht mit? (Tabelle people: Name und Kürzel für "A:" und den Namen auf den Zetteln)
+  // Wer macht mit? (Tabelle people: Name und Kürzel für die Schalter A/B und den Namen auf den Zetteln)
   async function loadPeople() {
     try {
       const { data, error } = await client.from('people').select('user_id, name, initial');
@@ -335,6 +348,7 @@
     logoutBtn.hidden = false;
     subscribe();
     flush().then(pull);
+    notifyAuth();
   }
 
   loginForm.addEventListener('submit', async e => {
@@ -372,6 +386,8 @@
 
   async function logout() {
     if (pending() && !confirm('Noch nicht alle Änderungen sind hochgeladen. Trotzdem abmelden?')) return;
+    // Erinnerungen für dieses Gerät abmelden, solange die Anmeldung noch gilt
+    if (window.Push) await Push.forget();
     unsubscribe();
     // Nur dieses Gerät abmelden, die anderen bleiben angemeldet
     try {
@@ -387,6 +403,7 @@
     logoutBtn.hidden = true;
     setStatus('local');
     showLogin();
+    notifyAuth();
   }
 
   /* ---------- Start ---------- */
@@ -410,6 +427,7 @@
         logoutBtn.hidden = true;
         setStatus('local');
         showLogin();
+        notifyAuth();
       }
     });
 
@@ -440,6 +458,17 @@
     if (!document.hidden && user) flush().then(pull);
   });
 
-  window.Sync = { logout };
+  window.Sync = {
+    logout,
+    client: () => client,
+    user: () => user,
+    // Aktuelle Sitzung (für Aufrufe an den Erinnerungs-Dienst)
+    async session() {
+      if (!client) return null;
+      const { data } = await client.auth.getSession();
+      return data && data.session;
+    },
+    onAuthChange(fn) { authListeners.add(fn); },
+  };
   start();
 })();

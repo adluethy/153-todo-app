@@ -38,8 +38,12 @@ Beim ersten Start auf jedem Gerät (und in jedem Browser) einmal anmelden. Danac
 
 **To-do**
 - Aufgabe oben eintippen, Enter oder `+`. Mit dem Kalender-Knopf daneben gleich einen Termin setzen.
-- Vorne steht, wer die Aufgabe erfasst hat: `A:` = Adrian, `B:` = Barbara.
-  Wer sie erledigt, macht ihr unter euch aus; abhaken und löschen können beide.
+- Vor jeder Aufgabe stehen zwei runde Schalter **A** (Adrian) und **B** (Barbara): Blau = die Aufgabe gilt
+  für diese Person, und sie bekommt die Erinnerungen. Beim Erfassen ist die eigene Person eingeschaltet;
+  wer den anderen Schalter dazudrückt, macht daraus eine Aufgabe für beide. Einer bleibt immer an.
+- Die gleichen Schalter stehen auch neben dem Eingabefeld, um eine Aufgabe gleich für beide zu erfassen.
+- Wer eine Aufgabe erfasst hat, zeigt der Hinweis beim Darüberfahren mit der Maus.
+  Abhaken, ändern und löschen können beide alles.
 - 1. Kästchen = erledigt → Schrift wird hellgrau.
 - 2. Kästchen = löschen → geht erst, wenn die Aufgabe erledigt ist. Die Aufgabe verschwindet.
 - Auf den Text klicken, um ihn zu ändern (Enter speichert, Esc bricht ab).
@@ -54,13 +58,30 @@ Beim ersten Start auf jedem Gerät (und in jedem Browser) einmal anmelden. Danac
 - `×` oben rechts = schliessen. Der Zettel kommt in die **Ablage** und kann dort wieder geöffnet
   oder endgültig gelöscht werden.
 - Ideen-Zettel haben zusätzlich den Knopf „Als Aufgabe übernehmen“: Der Text wird zur Aufgabe,
-  der Zettel kommt in die Ablage. Die Aufgabe bekommt das Kürzel der Person, die die Idee hatte.
+  der Zettel kommt in die Ablage. Die Aufgabe gilt für die Person, die die Idee hatte.
 
 **Handy (schmaler Bildschirm)**
 - Unten umschalten zwischen „To-do“ und „Zettel“.
 - Die Zettel erscheinen als Stapel (neueste oben), ohne Verschieben und Grösse ändern.
 
 **Abmelden:** Menü `⋯` → „Abmelden“. Meldet nur dieses Gerät ab und löscht dort die lokale Kopie.
+
+## Erinnerungen
+
+- Für jede Aufgabe mit Termin kommt eine Mitteilung **1 Tag** und **2 Stunden** vor dem Termin,
+  an die Personen, deren Schalter (A/B) eingeschaltet ist. Antippen öffnet die App.
+- Erledigte Aufgaben erinnern nicht mehr. Wird der Termin verschoben, richten sich die Erinnerungen
+  nach dem neuen Termin. Wer einen Termin kurzfristig setzt, bekommt nur die Erinnerungen, die noch
+  in der Zukunft liegen (heute Abend für morgen früh: nur die 2-Stunden-Erinnerung).
+- Eine kleine Glocke beim Datum zeigt, dass noch Erinnerungen folgen.
+- **Einschalten, auf jedem Gerät einzeln:** Menü `⋯` → „Erinnerungen einschalten“ → Mitteilungen erlauben.
+  Danach „Test-Mitteilung senden“: Sie kommt nach wenigen Sekunden auf allen eigenen Geräten an.
+  Ausschalten im selben Menü.
+- **iPhone:** geht nur, wenn die App über Safari auf dem Home-Bildschirm liegt und von dort geöffnet wird.
+- **PC/Laptop:** Mitteilungen kommen, solange Chrome bzw. Edge im Hintergrund läuft (Standard).
+- «Nicht stören» bzw. Fokus-Modi am Handy halten Mitteilungen zurück; eine Ruhezeit in der Nacht gibt es nicht.
+- Verschickt werden die Erinnerungen von einem kleinen Dienst auf Vercel, der jede Minute nachschaut
+  (Ordner `push/`). Fällt er einmal aus, holt er Verpasstes bis 6 Stunden später nach.
 
 ## Konten
 
@@ -69,6 +90,11 @@ Beim ersten Start auf jedem Gerät (und in jedem Browser) einmal anmelden. Danac
 | GitHub | Benutzer `adluethy`, Repository https://github.com/adluethy/153-todo-app | Code ablegen und die App online stellen (GitHub Pages) |
 | Supabase | Anmeldung über GitHub (`adluethy`), angelegt am 22.10.2026, Projekt `153-todo-app` | Online-Datenbank und Login |
 | App-Login | je eine Anmeldung für Adrian und Barbara (E-Mail und Passwort), angelegt in Supabase unter Authentication → Users | Anmelden in der App auf allen Geräten |
+| Vercel | Team `mathefrosch` (Pro), Projekt `153-todo-push`, https://153-todo-push.vercel.app | Verschickt die Erinnerungen (jede Minute) |
+
+Die drei geheimen Werte des Erinnerungs-Dienstes (`SUPABASE_SECRET_KEY`, `VAPID_PRIVATE_KEY`,
+`CRON_SECRET`) stehen nur in Vercel unter Settings → Environment Variables. Eine Kopie der letzten
+beiden liegt in `C:\Users\Adrian\.todo_push_schluessel.txt` (ausserhalb von Dropbox).
 
 Passwörter und E-Mail-Adressen gehören nicht in diese Datei (sie liegt öffentlich auf GitHub),
 sondern in den Passwort-Manager. Neue Registrierungen sind in Supabase gesperrt.
@@ -100,7 +126,10 @@ Gut zu wissen:
   - [x] Zu zweit: Kürzel und Namen in der App, gemeinsame Rechte in der Datenbank (online seit 22.10.2026)
   - [x] Zu zweit: `schema.sql` in Supabase ausgeführt, Adrian eingetragen (22.10.2026)
   - [ ] Zu zweit: Barbaras Konto anlegen und eintragen, sie installiert die App
-- [ ] **Phase 3:** Termine mit Push-Benachrichtigung aufs Handy
+- [ ] **Phase 3:** Termine mit Push-Erinnerung (Plan: `PLAN-ERINNERUNGEN.md`)
+  - [x] Schalter A/B, Datenbank, Dienst auf Vercel, Menü in der App gebaut und getestet (22.10.2026)
+  - [ ] `schema.sql` in Supabase ausführen, Geheimwerte in Vercel eintragen, App hochladen
+  - [ ] Auf jedem Gerät Erinnerungen einschalten und testen; Barbaras Anleitung nachführen
 
 ## Dateien
 
@@ -115,7 +144,11 @@ Gut zu wissen:
 | `js/sync.js` | Anmelden und Abgleich mit der Online-Datenbank |
 | `js/todos.js` | To-do-Liste |
 | `js/notes.js` | Zettel und Ablage |
+| `js/push.js` | Erinnerungen auf diesem Gerät ein- und ausschalten, Test-Mitteilung |
 | `js/app.js` | Ansicht wechseln, Menü, Export/Import |
+| `push/` | Erinnerungs-Dienst auf Vercel (verschickt die Mitteilungen jede Minute) |
+| `PLAN-ERINNERUNGEN.md` | Plan und Entscheide zu den Erinnerungen |
+| `anleitung/` | Anleitung für Barbara als PDF (nur in Dropbox, nicht auf GitHub) |
 | `supabase/schema.sql` | Tabellen und Zugriffsrechte für die Online-Datenbank (im Supabase-Dashboard ausführen, darf mehrmals laufen) |
 | `manifest.webmanifest`, `sw.js`, `icons/` | Damit sich die App installieren lässt und ohne Internet startet |
 | `icon-entwuerfe/` | Die vier Icon-Entwürfe und `icon_bauen.py`, das die Dateien in `icons/` erzeugt (nur in Dropbox, nicht auf GitHub) |

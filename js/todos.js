@@ -9,6 +9,10 @@
   const textInput = document.getElementById('todo-text');
   const dateInput = document.getElementById('todo-date');
   const dateToggle = document.getElementById('todo-date-toggle');
+  const formWho = document.getElementById('todo-who');
+
+  // Für wen gilt die nächste neue Aufgabe? (Schalter im Eingabefeld; null = nur wer sie erfasst)
+  let formAssignees = null;
 
   // Während gezogen oder bearbeitet wird, nicht neu zeichnen (sonst springt alles)
   let dragging = false;
@@ -53,9 +57,66 @@
     return `${day} ${timeFmt.format(d)}`;
   }
 
+  /* ---------- Schalter A/B: für wen gilt die Aufgabe ---------- */
+
+  // Liste umschalten; mindestens eine Person bleibt drin. Reihenfolge wie in der Personenliste.
+  function toggleAssignee(current, userId) {
+    const set = new Set(current);
+    if (set.has(userId)) {
+      if (set.size === 1) {
+        App.toast('Mindestens eine Person muss eingeschaltet sein');
+        return null;
+      }
+      set.delete(userId);
+    } else {
+      set.add(userId);
+    }
+    return Store.people().map(p => p.userId).filter(id => set.has(id));
+  }
+
+  // Zwei kleine Knöpfe "A" und "B"; eingeschaltet = die Aufgabe gilt für diese Person
+  function whoButtons(selected, onChange) {
+    const wrap = document.createElement('span');
+    wrap.className = 'todo-who';
+    Store.people().forEach(p => {
+      const on = selected.includes(p.userId);
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'who-btn' + (on ? ' on' : '');
+      b.textContent = p.initial;
+      b.setAttribute('aria-pressed', String(on));
+      b.title = on ? `Gilt für ${p.name} (antippen zum Ausschalten)` : `Gilt nicht für ${p.name} (antippen zum Einschalten)`;
+      b.addEventListener('click', e => {
+        e.stopPropagation();
+        const next = toggleAssignee(selected, p.userId);
+        if (next) onChange(next);
+      });
+      wrap.append(b);
+    });
+    return wrap;
+  }
+
+  function renderFormWho() {
+    const me = Store.me();
+    const people = Store.people();
+    const ids = people.map(p => p.userId);
+    if (!people.length || !me) {
+      formWho.hidden = true;
+      formWho.replaceChildren();
+      return;
+    }
+    const selected = (formAssignees || [me]).filter(id => ids.includes(id));
+    formWho.replaceChildren(...whoButtons(selected.length ? selected : [me], next => {
+      formAssignees = next;
+      renderFormWho();
+    }).childNodes);
+    formWho.hidden = false;
+  }
+
   /* ---------- Zeichnen ---------- */
 
   function render() {
+    renderFormWho();
     if (dragging || editing) {
       pendingRender = true;
       return;
@@ -109,14 +170,13 @@
     body.className = 'todo-body';
     const line = document.createElement('div');
     line.className = 'todo-line';
-    // "A:" bzw. "B:" = wer die Aufgabe erfasst hat
-    const who = Store.person(t.userId);
-    if (who) {
-      const by = document.createElement('span');
-      by.className = 'todo-by';
-      by.textContent = who.initial + ':';
-      by.title = 'Erfasst von ' + who.name;
-      line.append(by);
+    // Schalter A/B = für wen die Aufgabe gilt (und wer erinnert wird)
+    if (Store.people().length) {
+      const selected = t.assignees && t.assignees.length ? t.assignees : [t.userId];
+      const who = whoButtons(selected, next => Store.updateTodo(t.id, { assignees: next }));
+      const by = Store.person(t.userId);
+      if (by) who.querySelectorAll('button').forEach(b => { b.title += ' · erfasst von ' + by.name; });
+      line.append(who);
     }
     const text = document.createElement('span');
     text.className = 'todo-text';
@@ -138,6 +198,11 @@
       due.title = 'Termin ändern';
       due.innerHTML = Icon('calendar');
       due.append(formatDue(d));
+      // Glocke: Erinnerungen 1 Tag und 2 Std. vorher stehen noch aus
+      if (!t.done && d > now) {
+        due.insertAdjacentHTML('beforeend', Icon('bell'));
+        due.title = 'Termin ändern · Erinnerung 1 Tag und 2 Std. vorher';
+      }
       due.addEventListener('click', () => openDateEditor(li, t));
       body.append(due);
       calSlot = document.createElement('span');
@@ -346,7 +411,9 @@
       return;
     }
     const dueAt = dateInput.hidden ? null : inputToIso(dateInput.value);
-    Store.addTodo(text, dueAt);
+    Store.addTodo(text, dueAt, null, formAssignees);
+    formAssignees = null; // nächste Aufgabe wieder nur für die eigene Person
+    renderFormWho();
     textInput.value = '';
     dateInput.value = '';
     dateInput.hidden = true;

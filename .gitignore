@@ -10,3 +10,8 @@ sicherungen/
 
 # Lokale Claude-Einstellungen
 .claude/settings.local.json
+
+# Erinnerungs-Dienst: Vercel-Verknüpfung und Pakete nur lokal
+push/.vercel/
+push/node_modules/
+.vercel/

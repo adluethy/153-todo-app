@@ -49,6 +49,8 @@
     if (btn.dataset.action === 'export') exportData();
     if (btn.dataset.action === 'import') importInput.click();
     if (btn.dataset.action === 'logout') Sync.logout();
+    if (btn.dataset.action === 'push') Push.toggle(); // direkt beim Antippen (iPhone verlangt das)
+    if (btn.dataset.action === 'push-test') Push.test();
   });
 
   /* ---------- Sicherung ---------- */
