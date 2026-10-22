@@ -152,14 +152,15 @@ Abgleich (sync.js):
    Hochladen des Dienstes; App mit neuen Spalten erst nach dem SQL pushen.
    Zustellung bestätigt: Adrians Android-Handy und PC (13:28 echte Erinnerung an 2 Geräte, ok).
    Am PC kam erst nichts, weil die offene App noch v=5 hatte (GitHub Pages hält index.html bis 10 Min.);
-   nach F5 ging es. Barbaras Anleitung ist auf v=6 (4 S.). Barbaras Konto laut Adrian angelegt
+   nach F5 ging es. Barbaras Konto laut Adrian angelegt
    (22.10.2026; Kontrolle: Schalter B erscheint in der App). Offen: Laptops, Barbaras iPhone.
 4. **Reiter Adrian/Barbara/Gemmel (v=7):** gebaut und lokal getestet am 22.10.2026 (Filter, neue Einträge,
    A/B-Umschalten, Idee → Aufgabe, Verschieben-Menü, Sortieren, Handy-Ansicht, ohne Anmeldung).
    SQL-Teil `notes.space` mit PGlite geprüft (zweimal ausführbar, alte App-Version harmlos).
    `schema.sql` vom Nutzer ausgeführt (Feld per REST geprüft), **online seit 22.10.2026** (Commit 009befb),
    Online-Version lädt v=7 ohne Fehler. Lehre bestätigt: neue Spalten erst in Supabase, dann pushen.
-   Offen: Test mit echter Anmeldung durch den Nutzer, Barbaras Anleitung nachführen.
+   Barbaras Anleitung auf v=7 nachgeführt (5 S., neue Seite 4 «Drei Reiter», Bilder mit Reiter Barbara).
+   Offen: Test mit echter Anmeldung durch den Nutzer.
 
 ## Testen
 
@@ -178,6 +179,12 @@ Abgleich (sync.js):
 - Push lässt sich im Claude-Browser nicht testen (kein Service Worker); das Menü erscheint dort nicht.
   Den Dienst lokal prüfen: `push/` ins Scratchpad kopieren, `npm install`, Datenbank nachbauen und
   `webpush.generateRequestDetails` + `http_ece.decrypt` statt echtem Versand (Testmuster 22.10.2026).
+- Barbaras Anleitung (`anleitung/`, nur Dropbox): Ablauf in `anleitung/_werkzeug/LIESMICH.txt`
+  (puppeteer-core im Scratchpad, Pfade über den Benutzerordner, also an beiden PCs gleich).
+  Puppeteer kann Edge an diesem PC nicht selbst starten („Code: 0“); `edge.mjs` startet Edge dann mit
+  festem Port und verbindet sich. Screenshots mit `clip` schliessen offene Menüs (kurze Grössenänderung
+  → resize) und verrutschen bei dreifacher Auflösung: ganzes Bild aufnehmen und im Browser zuschneiden.
+  Die App-Änderung, die Barbara sieht, immer auch in der Anleitung nachführen.
 - SQL-Änderungen vor dem Ausführen lokal prüfen: `@electric-sql/pglite` per npm im Scratchpad
   (nicht im Projekt), Supabase nachbauen (Schema `auth` mit `users` und `uid()` aus
   `request.jwt.claim.sub`, Rollen anon/authenticated, Default-Rechte auf Funktionen, Publication
