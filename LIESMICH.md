@@ -97,8 +97,9 @@ Gut zu wissen:
   - [x] App mit der Datenbank verbunden: Anmeldung, Abgleich live und offline (getestet am 22.10.2026)
   - [x] GitHub-Repository angelegt, GitHub Pages eingeschaltet
   - [ ] Auf Handy und Laptops installieren und anmelden
-  - [x] Zu zweit: Kürzel und Namen in der App, gemeinsame Rechte in der Datenbank (22.10.2026)
-  - [ ] Zu zweit: `schema.sql` in Supabase ausführen, Adrian und Barbara eintragen, Barbaras Konto anlegen
+  - [x] Zu zweit: Kürzel und Namen in der App, gemeinsame Rechte in der Datenbank (online seit 22.10.2026)
+  - [x] Zu zweit: `schema.sql` in Supabase ausgeführt, Adrian eingetragen (22.10.2026)
+  - [ ] Zu zweit: Barbaras Konto anlegen und eintragen, sie installiert die App
 - [ ] **Phase 3:** Termine mit Push-Benachrichtigung aufs Handy
 
 ## Dateien

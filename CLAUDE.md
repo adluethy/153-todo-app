@@ -97,9 +97,9 @@ Abgleich (sync.js):
 1. **Erledigt:** Prototyp, Daten lokal.
 2. **Fast erledigt:** Supabase-Abgleich, GitHub Pages, PWA (getestet am 22.10.2026).
    Offen: Installation auf Handy/Laptops durch den Nutzer.
-   - Zu zweit (v=4, 22.10.2026): Code und `schema.sql` fertig, SQL lokal mit PGlite geprüft.
-     Offen: `schema.sql` im SQL Editor ausführen, Adrian und Barbara mit `add_person` eintragen,
-     Barbaras Benutzer anlegen, Test mit zwei Anmeldungen.
+   - Zu zweit (v=4, 22.10.2026): Code online, `schema.sql` ausgeführt (vorher lokal mit PGlite
+     geprüft), Adrian per `add_person` eingetragen. Offen: Barbaras Benutzer anlegen und eintragen,
+     Test mit zwei Anmeldungen.
 3. Push-Erinnerungen für Termine: Web Push (VAPID), neue Tabelle für Push-Abos.
    Versand entweder Supabase Cron + Edge Function oder Vercel Cron + Function (Nutzer hat Vercel Pro);
    vor dem Bauen mit dem Nutzer entscheiden. Ebenfalls klären: wer bekommt die Erinnerung
