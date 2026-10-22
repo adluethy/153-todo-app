@@ -79,6 +79,9 @@ Beim ersten Start auf jedem Gerät (und in jedem Browser) einmal anmelden. Danac
   Ausschalten im selben Menü.
 - **iPhone:** geht nur, wenn die App über Safari auf dem Home-Bildschirm liegt und von dort geöffnet wird.
 - **PC/Laptop:** Mitteilungen kommen, solange Chrome bzw. Edge im Hintergrund läuft (Standard).
+- **Fehlt der Menüpunkt** oder fehlen die Schalter A/B nach einer neuen Version: Die App läuft noch in der
+  alten Fassung. Neu laden (F5) bzw. App schliessen und wieder öffnen; GitHub liefert eine neue Version
+  bis zu 10 Minuten verzögert aus.
 - «Nicht stören» bzw. Fokus-Modi am Handy halten Mitteilungen zurück; eine Ruhezeit in der Nacht gibt es nicht.
 - Verschickt werden die Erinnerungen von einem kleinen Dienst auf Vercel, der jede Minute nachschaut
   (Ordner `push/`). Fällt er einmal aus, holt er Verpasstes bis 6 Stunden später nach.
@@ -129,7 +132,9 @@ Gut zu wissen:
 - [ ] **Phase 3:** Termine mit Push-Erinnerung (Plan: `PLAN-ERINNERUNGEN.md`)
   - [x] Schalter A/B, Datenbank, Dienst auf Vercel, Menü in der App gebaut und getestet (22.10.2026)
   - [x] `schema.sql` in Supabase ausgeführt, Geheimwerte in Vercel eingetragen, App online (22.10.2026)
-  - [ ] Auf jedem Gerät Erinnerungen einschalten und testen; Barbaras Anleitung nachführen
+  - [x] Erinnerungen am Android-Handy und am PC eingeschaltet, Zustellung klappt (22.10.2026)
+  - [x] Barbaras Anleitung nachgeführt (Schalter A/B, Seite «Erinnerungen»)
+  - [ ] Laptops und Barbaras iPhone einschalten
 
 ## Dateien
 

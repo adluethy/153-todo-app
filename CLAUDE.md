@@ -136,8 +136,9 @@ Abgleich (sync.js):
    `PLAN-ERINNERUNGEN.md`. `schema.sql` ausgeführt, Geheimwerte in Vercel, Cron antwortet seit 13:05 mit 200
    (`vercel logs --project 153-todo-push --since 15m --json`). Lehre: Env-Variablen gelten erst nach neuem
    Hochladen des Dienstes; App mit neuen Spalten erst nach dem SQL pushen.
-   Offen: auf jedem Gerät Erinnerungen einschalten und Test-Mitteilung senden (erste echte Zustellung
-   ungetestet), Barbaras Anleitung nachführen (Schalter A/B, Erinnerungen auf dem iPhone).
+   Zustellung bestätigt: Adrians Android-Handy und PC (13:28 echte Erinnerung an 2 Geräte, ok).
+   Am PC kam erst nichts, weil die offene App noch v=5 hatte (GitHub Pages hält index.html bis 10 Min.);
+   nach F5 ging es. Barbaras Anleitung ist auf v=6 (4 S.). Offen: Laptops, Barbaras Konto + iPhone.
 
 ## Testen
 
