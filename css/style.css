@@ -264,7 +264,18 @@ input:focus-visible { outline: 2px solid #b8cff5; border-color: var(--accent); }
 .cb-del.locked { opacity: .3; cursor: not-allowed; }
 
 .todo-body { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
+.todo-line { align-self: stretch; display: flex; align-items: baseline; min-width: 0; }
+/* "A:" bzw. "B:" = wer die Aufgabe erfasst hat */
+.todo-by {
+  flex: none;
+  padding: 1px 0 1px 4px;
+  font-weight: 600;
+  color: var(--text-soft);
+  cursor: default;
+}
+.todo.done .todo-by { color: var(--text-done); }
 .todo-text {
+  min-width: 0;
   max-width: 100%;
   padding: 1px 4px;
   border-radius: 4px;
@@ -273,7 +284,7 @@ input:focus-visible { outline: 2px solid #b8cff5; border-color: var(--accent); }
 }
 .todo-text[contenteditable="true"],
 .todo-text[contenteditable="plaintext-only"] {
-  align-self: stretch;
+  flex: 1;
   outline: 2px solid #b8cff5;
   background: #fff;
 }
@@ -407,6 +418,18 @@ input:focus-visible { outline: 2px solid #b8cff5; border-color: var(--accent); }
   line-height: 1.45;
 }
 .note-text::placeholder { color: inherit; opacity: .45; }
+.note.has-by .note-text { padding-bottom: 4px; }
+
+/* Name unten rechts: wer den Zettel geschrieben hat (Platz lassen für den Griff zum Vergrössern) */
+.note-by {
+  flex: none;
+  padding: 0 28px 5px 12px;
+  font-size: 12px;
+  font-style: italic;
+  text-align: right;
+  opacity: .75;
+  user-select: none;
+}
 
 .note-resize {
   position: absolute;
@@ -569,6 +592,7 @@ input:focus-visible { outline: 2px solid #b8cff5; border-color: var(--accent); }
   }
   .note-head { cursor: default; }
   .note-text { field-sizing: content; min-height: 90px; }
+  .note-by { padding-right: 12px; }
   .note-resize { display: none; }
 
   .tabbar {

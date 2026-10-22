@@ -5,11 +5,30 @@
   'use strict';
 
   const KEY = 'todo-zettel.v1';
+  const PEOPLE_KEY = 'todo-zettel.people.v1';
   const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const listeners = new Set();
   let onDirty = () => {};
   let saveTimer = null;
   let data = load();
+  let me = null; // ID der angemeldeten Person (null = nicht angemeldet)
+  let people = loadPeople(); // alle, die mitmachen: [{ userId, name, initial }]
+
+  function loadPeople() {
+    try {
+      const list = JSON.parse(localStorage.getItem(PEOPLE_KEY));
+      return Array.isArray(list) ? list : [];
+    } catch (err) {
+      return [];
+    }
+  }
+
+  function savePeople() {
+    try {
+      if (people.length) localStorage.setItem(PEOPLE_KEY, JSON.stringify(people));
+      else localStorage.removeItem(PEOPLE_KEY);
+    } catch (err) { /* voll oder gesperrt */ }
+  }
 
   function emptyData() {
     return { version: 1, todos: [], notes: [] };
@@ -107,6 +126,9 @@
     notes: () => data.notes,
     maxZ,
 
+    // Wer hat den Eintrag erfasst? { userId, name, initial } oder null (unbekannt / nicht angemeldet)
+    person: userId => (userId && people.find(p => p.userId === userId)) || null,
+
     subscribe(fn) {
       listeners.add(fn);
       return () => listeners.delete(fn);
@@ -114,10 +136,12 @@
 
     /* ---------- Aufgaben ---------- */
 
-    addTodo(text, dueAt) {
+    // userId: wer die Aufgabe erfasst hat (ohne Angabe die angemeldete Person)
+    addTodo(text, dueAt, userId) {
       const minOrder = data.todos.reduce((m, t) => Math.min(m, t.order), 0);
       const todo = {
         id: uid(),
+        userId: userId || me,
         text,
         done: false,
         dueAt: dueAt || null,
@@ -161,6 +185,7 @@
     addNote(type, pos) {
       const note = {
         id: uid(),
+        userId: me, // wer den Zettel erfasst hat
         type, // 'idee' oder 'info'
         text: '',
         x: pos.x, // Position als Anteil der Fläche (0–1), damit sie auf jedem Bildschirm passt
@@ -237,8 +262,18 @@
         saveNow();
         topics.forEach(emit);
       },
+      setUser(id) { me = id || null; },
+      // Liste der Personen aus der Datenbank; neu zeichnen nur, wenn sich etwas geändert hat
+      setPeople(list) {
+        if (JSON.stringify(list) === JSON.stringify(people)) return;
+        people = list;
+        savePeople();
+        emit('people');
+      },
       clear() {
         data = emptyData();
+        people = [];
+        savePeople();
         saveNow();
         emit('all');
       },

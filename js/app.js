@@ -73,7 +73,7 @@
     try {
       const raw = JSON.parse(await file.text());
       if (!raw || !Array.isArray(raw.todos) || !Array.isArray(raw.notes)) throw new Error('Falsches Format');
-      const ok = confirm(`Sicherung laden? ${raw.todos.length} Aufgaben und ${raw.notes.length} Zettel ersetzen die aktuellen Daten, auch auf allen anderen Geräten.`);
+      const ok = confirm(`Sicherung laden? ${raw.todos.length} Aufgaben und ${raw.notes.length} Zettel ersetzen alle aktuellen Daten, auch die Einträge der anderen Person und auf allen anderen Geräten.`);
       if (!ok) return;
       Store.importData(raw);
       App.toast('Sicherung geladen');

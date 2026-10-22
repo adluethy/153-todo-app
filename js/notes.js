@@ -58,6 +58,7 @@
         if (document.activeElement !== ta && ta.value !== n.text) ta.value = n.text;
       }
       el.style.order = String(i);
+      showAuthor(el, n);
       place(el, n);
     });
 
@@ -78,6 +79,16 @@
     el.style.left = clamp(n.x * bw, 0, Math.max(0, bw - w)) + 'px';
     el.style.top = clamp(n.y * bh, 0, Math.max(0, bh - h)) + 'px';
     el.style.zIndex = String(n.z);
+  }
+
+  // Name unten am Zettel: wer ihn geschrieben hat
+  function showAuthor(el, n) {
+    const who = Store.person(n.userId);
+    const by = el.querySelector('.note-by');
+    by.textContent = who ? who.name : '';
+    by.title = who ? 'Geschrieben von ' + who.name : '';
+    by.hidden = !who;
+    el.classList.toggle('has-by', !!who);
   }
 
   function noteButton(icon, label, onClick) {
@@ -119,12 +130,16 @@
     }
     head.append(noteButton('x', 'Schliessen (in die Ablage)', () => closeNote(id, el)));
 
+    const by = document.createElement('div');
+    by.className = 'note-by';
+    by.hidden = true;
+
     const resize = document.createElement('span');
     resize.className = 'note-resize';
     resize.title = 'Grösse ändern';
     resize.innerHTML = Icon('resize');
 
-    el.append(head, ta, resize);
+    el.append(head, ta, by, resize);
 
     el.addEventListener('pointerdown', () => bringToFront(id, el));
     head.addEventListener('pointerdown', e => startMove(e, id, el));
@@ -163,7 +178,8 @@
       ta.focus();
       return;
     }
-    Store.addTodo(text);
+    const note = findNote(id);
+    Store.addTodo(text, null, note && note.userId); // Aufgabe gehört der Person, die die Idee hatte
     Store.archiveNote(id, true);
     pulseArchive();
     App.toast('Als Aufgabe übernommen');
@@ -273,7 +289,9 @@
 
     const meta = document.createElement('div');
     meta.className = 'archive-meta';
-    meta.textContent = 'Abgelegt am ' + dateFmt.format(new Date(n.archivedAt || n.updatedAt)) +
+    const who = Store.person(n.userId);
+    meta.textContent = (who ? who.name + ' · ' : '') +
+      'Abgelegt am ' + dateFmt.format(new Date(n.archivedAt || n.updatedAt)) +
       (n.convertedAt ? ' · als Aufgabe übernommen' : '');
 
     const actions = document.createElement('div');
@@ -345,7 +363,7 @@
   });
 
   Store.subscribe(topic => {
-    if (topic === 'notes') render();
+    if (topic === 'notes' || topic === 'people') render();
     if (topic === 'all') render(true);
   });
 

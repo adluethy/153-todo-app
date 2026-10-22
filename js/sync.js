@@ -31,13 +31,14 @@
 
   /* ---------- Umrechnen: App (camelCase) <-> Datenbank (snake_case) ---------- */
 
+  // userId / user_id = wer den Eintrag erfasst hat (Adrian oder Barbara)
   const COLUMNS = {
     todos: {
-      id: 'id', text: 'text', done: 'done', dueAt: 'due_at', order: 'sort_order',
+      id: 'id', userId: 'user_id', text: 'text', done: 'done', dueAt: 'due_at', order: 'sort_order',
       createdAt: 'created_at', updatedAt: 'updated_at',
     },
     notes: {
-      id: 'id', type: 'type', text: 'text', x: 'x', y: 'y', w: 'w', h: 'h', z: 'z',
+      id: 'id', userId: 'user_id', type: 'type', text: 'text', x: 'x', y: 'y', w: 'w', h: 'h', z: 'z',
       archived: 'archived', archivedAt: 'archived_at', convertedAt: 'converted_at',
       createdAt: 'created_at', updatedAt: 'updated_at',
     },
@@ -47,6 +48,9 @@
   function toRow(table, item) {
     const row = {};
     Object.entries(COLUMNS[table]).forEach(([key, col]) => { row[col] = item[key] ?? null; });
+    // user_id immer mitschicken: Ein Upsert mit gemischten Feldern würde sonst Fehler oder falsche Namen geben.
+    // Fehlt sie (Eintrag vor dem ersten Anmelden erfasst), gilt die angemeldete Person.
+    if (!row.user_id) row.user_id = user.id;
     return row;
   }
 
@@ -169,8 +173,25 @@
     return changed;
   }
 
+  // Wer macht mit? (Tabelle people: Name und Kürzel für "A:" und den Namen auf den Zetteln)
+  async function loadPeople() {
+    try {
+      const { data, error } = await client.from('people').select('user_id, name, initial');
+      if (error) throw error;
+      const list = data
+        .map(r => ({ userId: r.user_id, name: r.name, initial: r.initial }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+      Store._sync.setPeople(list);
+      showUser();
+    } catch (err) {
+      // z.B. offline oder Tabelle noch nicht angelegt: ohne Namen weiterarbeiten
+      console.warn('Personen nicht geladen', err);
+    }
+  }
+
   async function pull() {
     if (!user) return;
+    loadPeople();
     try {
       const results = await Promise.all(TABLES.map(table => client.from(table).select('*')));
       const changedTopics = [];
@@ -287,6 +308,13 @@
     loginError.hidden = false;
   }
 
+  // Menü: "Angemeldet als Adrian (E-Mail)"
+  function showUser() {
+    if (!user) return;
+    const who = Store.person(user.id);
+    menuUser.textContent = 'Angemeldet als ' + (who ? `${who.name} (${user.email})` : user.email);
+  }
+
   function signedIn(u) {
     const last = localStorage.getItem(USER_KEY);
     if (last && last !== u.id) {
@@ -299,9 +327,10 @@
       TABLES.forEach(table => Store._sync.table(table).forEach(item => markDirty(table, item.id, 'upsert')));
     }
     localStorage.setItem(USER_KEY, u.id);
+    Store._sync.setUser(u.id);
     user = u;
     hideLogin();
-    menuUser.textContent = 'Angemeldet als ' + u.email;
+    showUser();
     menuUser.hidden = false;
     logoutBtn.hidden = false;
     subscribe();
@@ -352,6 +381,7 @@
     outbox = {};
     saveOutbox();
     localStorage.removeItem(USER_KEY);
+    Store._sync.setUser(null);
     Store._sync.clear();
     menuUser.hidden = true;
     logoutBtn.hidden = true;
@@ -374,6 +404,7 @@
       // z.B. Sitzung auf einem anderen Weg beendet
       if (event === 'SIGNED_OUT' && user) {
         user = null;
+        Store._sync.setUser(null);
         unsubscribe();
         menuUser.hidden = true;
         logoutBtn.hidden = true;
@@ -393,7 +424,11 @@
     }
   }
 
-  if (Store._sync) Store._sync.onDirty(markDirty);
+  if (Store._sync) {
+    Store._sync.onDirty(markDirty);
+    // Neue Einträge sofort mit der richtigen Person versehen, auch bevor die Anmeldung geprüft ist
+    Store._sync.setUser(localStorage.getItem(USER_KEY));
+  }
 
   window.addEventListener('online', () => {
     if (user) flush().then(pull);

@@ -107,12 +107,24 @@
 
     const body = document.createElement('div');
     body.className = 'todo-body';
+    const line = document.createElement('div');
+    line.className = 'todo-line';
+    // "A:" bzw. "B:" = wer die Aufgabe erfasst hat
+    const who = Store.person(t.userId);
+    if (who) {
+      const by = document.createElement('span');
+      by.className = 'todo-by';
+      by.textContent = who.initial + ':';
+      by.title = 'Erfasst von ' + who.name;
+      line.append(by);
+    }
     const text = document.createElement('span');
     text.className = 'todo-text';
     text.textContent = t.text;
     text.title = 'Klicken zum Ändern';
     text.addEventListener('click', () => startEdit(text, t));
-    body.append(text);
+    line.append(text);
+    body.append(line);
 
     let calSlot;
     if (t.dueAt) {
@@ -344,7 +356,7 @@
   });
 
   Store.subscribe(topic => {
-    if (topic === 'todos' || topic === 'all') render();
+    if (topic === 'todos' || topic === 'all' || topic === 'people') render();
   });
 
   // Jede Minute neu zeichnen, damit „Heute“ und überfällige Termine stimmen

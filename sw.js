@@ -2,7 +2,7 @@
    Eigene Dateien: immer zuerst aus dem Netz laden (Änderungen kommen sofort an),
    ohne Internet die zuletzt geladene Version aus dem Zwischenspeicher nehmen.
    Anfragen an die Datenbank werden nie zwischengespeichert. */
-const CACHE = 'todo-zettel-v3';
+const CACHE = 'todo-zettel-v4';
 const FILES = [
   './',
   './index.html',
