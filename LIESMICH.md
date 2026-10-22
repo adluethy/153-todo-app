@@ -128,7 +128,8 @@ Gut zu wissen:
   - [ ] Auf Handy und Laptops installieren und anmelden
   - [x] Zu zweit: Kürzel und Namen in der App, gemeinsame Rechte in der Datenbank (online seit 22.10.2026)
   - [x] Zu zweit: `schema.sql` in Supabase ausgeführt, Adrian eingetragen (22.10.2026)
-  - [ ] Zu zweit: Barbaras Konto anlegen und eintragen, sie installiert die App
+  - [x] Zu zweit: Barbaras Konto in Supabase angelegt (22.10.2026)
+  - [ ] Barbara installiert die App auf dem iPhone und meldet sich an (Anleitung in `anleitung/`)
 - [ ] **Phase 3:** Termine mit Push-Erinnerung (Plan: `PLAN-ERINNERUNGEN.md`)
   - [x] Schalter A/B, Datenbank, Dienst auf Vercel, Menü in der App gebaut und getestet (22.10.2026)
   - [x] `schema.sql` in Supabase ausgeführt, Geheimwerte in Vercel eingetragen, App online (22.10.2026)

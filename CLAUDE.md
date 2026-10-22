@@ -138,7 +138,8 @@ Abgleich (sync.js):
    Hochladen des Dienstes; App mit neuen Spalten erst nach dem SQL pushen.
    Zustellung bestätigt: Adrians Android-Handy und PC (13:28 echte Erinnerung an 2 Geräte, ok).
    Am PC kam erst nichts, weil die offene App noch v=5 hatte (GitHub Pages hält index.html bis 10 Min.);
-   nach F5 ging es. Barbaras Anleitung ist auf v=6 (4 S.). Offen: Laptops, Barbaras Konto + iPhone.
+   nach F5 ging es. Barbaras Anleitung ist auf v=6 (4 S.). Barbaras Konto laut Adrian angelegt
+   (22.10.2026; Kontrolle: Schalter B erscheint in der App). Offen: Laptops, Barbaras iPhone.
 
 ## Testen
 
