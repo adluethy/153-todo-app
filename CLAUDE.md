@@ -12,12 +12,13 @@ Der Ordner liegt in Dropbox und wird an mehreren PCs bearbeitet.
   beim Hochladen; **nie `npm install` im Dropbox-Ordner**, zum Testen nach Scratchpad kopieren).
 - Klassische `<script>`-Tags, **keine ES-Module**: Die App muss per Doppelklick (`file://`) laufen.
 - Module hängen sich an `window`: `APP_CONFIG` (config.js), `Icon`, `App.toast` (ui.js), `Store` (store.js),
-  `Notes` (notes.js), `Sync` (sync.js), `Push` (push.js). Reihenfolge der Scripts in `index.html` beachten.
+  `Layers` (layers.js), `Notes` (notes.js), `Sync` (sync.js), `Push` (push.js).
+  Reihenfolge der Scripts in `index.html` beachten (layers.js nach store.js, vor todos.js/notes.js).
 - Kein Dunkelmodus (vom Nutzer nicht gewünscht).
 - **Bei jeder Änderung an CSS/JS:** in `index.html` die Version `?v=N` bei *allen* CSS/JS-Links
   um eins erhöhen und in `sw.js` die `CACHE`-Version gleich setzen. Sonst mischt der Browser
   nach einem Update bis zu 10 Minuten alte und neue Dateien (GitHub Pages speichert 10 Min zwischen).
-  Aktuell: `v=6`. Neue App-Dateien zusätzlich in `sw.js` → `FILES` eintragen.
+  Aktuell: `v=7`. Neue App-Dateien zusätzlich in `sw.js` → `FILES` eintragen.
 - App-Icon (seit 22.10.2026, v=5): Mathefrosch (Favicon von mathefrosch.com) vor blauem und gelbem Zettel,
   vom Nutzer aus vier Entwürfen gewählt. Alle Dateien in `icons/` erzeugt `icon-entwuerfe/icon_bauen.py`
   (Ordner nur in Dropbox, per `.git/info/exclude` nicht auf GitHub). Nach neuem Icon Version erhöhen;
@@ -35,11 +36,22 @@ Der Ordner liegt in Dropbox und wird an mehreren PCs bearbeitet.
 - Keine Suche nötig.
 - Geräte Adrian: 1 PC, 2 Laptops, 1 Android-Handy; dazu Barbaras Geräte.
 - Zu zweit (22.10.2026): Beide sehen, erledigen, ändern und löschen alles, keine privaten Einträge.
-  Ideen/Infos zeigen unten rechts den Namen. Idee → Aufgabe: Die Aufgabe übernimmt die Person der Idee.
-- Schalter A/B (seit v=6, ersetzen das frühere `A:`/`B:`): pro Aufgabe zwei runde Knöpfe = für wen sie gilt
-  (`assignees`). Beim Erfassen ist die eigene Person an, im Eingabefeld lässt sich die andere gleich
-  dazuschalten (danach zurück auf nur die eigene). Mindestens eine Person bleibt an. Wer erfasst hat,
-  steht im Tooltip der Knöpfe.
+  Ideen/Infos zeigen unten rechts den Namen.
+- Schalter A/B (seit v=6): pro Aufgabe zwei runde Knöpfe = für wen sie gilt (`assignees`).
+  Mindestens eine Person bleibt an. Wer erfasst hat, steht im Tooltip der Knöpfe.
+- **Reiter (v=7, Entwurf vom Nutzer gewählt 22.10.2026, Bilder in `entwurf-reiter/`):** oben in der Kopfzeile
+  je ein Reiter pro Person (Kürzel-Kreis + Name) und **„Gemmel“** (Name vom Nutzer, Kürzel „A B“) für beide;
+  am Handy als eigene Zeile unter dem Titel. Beide sehen alle Reiter (ordnen, nicht privat).
+  - Aufgaben: Reiter einer Person = Aufgaben mit ihr in `assignees` (auch gemeinsame); Gemmel = Aufgaben
+    für alle Personen. Neue Aufgabe gilt für den Reiter (Person → `[sie]`, Gemmel → alle); die Schalter A/B
+    im Eingabefeld sind mit Reitern ausgeblendet. A/B an der Aufgabe verschiebt sie zwischen Reitern
+    (Meldung, wenn sie dabei aus dem Reiter verschwindet). Aufgaben ohne eingetragene Person → Gemmel.
+  - Zettel: `space` = Person, null = Gemmel; jeder Reiter hat eigene Fläche und eigene Ablage.
+    Bisherige Zettel → Gemmel. Knopf „Verschieben nach …“ (zwei Pfeile) im Zettelkopf.
+  - Idee → Aufgabe: Aufgabe kommt in den Reiter der Idee (ersetzt „Person der Idee“); erfasst = Ideengeber.
+  - Reihenfolge: eine gemeinsame; Ziehen im Reiter tauscht nur die Plätze der sichtbaren (`mergeOrder`).
+  - Gewählter Reiter pro Gerät in localStorage `todo-zettel.layer` (`'G'` oder User-ID), Start: eigener.
+  - Ohne Anmeldung oder mit weniger als zwei Personen: keine Reiter, alles sichtbar (wie früher).
 - Erinnerungen (Phase 3, Entscheide 22.10.2026): Web Push, fest **1 Tag und 2 Std.** vor dem Termin, an alle
   Geräte der eingeschalteten Personen. Keine Ruhezeit in der Nacht. Kein WhatsApp/SMS. Plan: `PLAN-ERINNERUNGEN.md`.
 - Hosting GitHub Pages + Datenbank Supabase bleiben vorerst (Entscheid 22.10.2026).
@@ -81,7 +93,7 @@ Lokal (store.js), localStorage-Schlüssel `todo-zettel.v1`:
 ```
 { version: 1,
   todos: [{ id (UUID), userId, assignees ([userId…]), text, done, dueAt (ISO|null), order, createdAt, updatedAt }],
-  notes: [{ id (UUID), userId, type: 'idee'|'info', text, x, y (Anteil 0–1 der Fläche), w, h (px), z,
+  notes: [{ id (UUID), userId, space (userId|null = Gemmel), type: 'idee'|'info', text, x, y (Anteil 0–1 der Fläche), w, h (px), z,
             archived, archivedAt, convertedAt, createdAt, updatedAt }] }
 ```
 
@@ -94,6 +106,8 @@ Lokal (store.js), localStorage-Schlüssel `todo-zettel.v1`:
 
 Online (Supabase, `supabase/schema.sql`, darf mehrmals laufen): Tabellen `todos`, `notes`, gleiche Felder
 in snake_case (`order` → `sort_order`, `userId` → `user_id` mit Default `auth.uid()`), Realtime aktiv.
+- `notes.space uuid` (Reiter, seit v=7): `references auth.users on delete set null`, null = Gemmel.
+  Alte App-Versionen schicken das Feld nicht; der Upsert lässt es dann unverändert (lokal geprüft).
 - `people (user_id, name, initial)`: wer mitmacht. Nur per `add_person()` im SQL Editor änderbar
   (security definer, Ausführen für anon/authenticated entzogen).
 - RLS (`Gemeinsame Aufgaben`/`Gemeinsame Zettel`): `user_id = auth.uid() or is_member()`, d.h. eigene
@@ -140,6 +154,11 @@ Abgleich (sync.js):
    Am PC kam erst nichts, weil die offene App noch v=5 hatte (GitHub Pages hält index.html bis 10 Min.);
    nach F5 ging es. Barbaras Anleitung ist auf v=6 (4 S.). Barbaras Konto laut Adrian angelegt
    (22.10.2026; Kontrolle: Schalter B erscheint in der App). Offen: Laptops, Barbaras iPhone.
+4. **Reiter Adrian/Barbara/Gemmel (v=7):** gebaut und lokal getestet am 22.10.2026 (Filter, neue Einträge,
+   A/B-Umschalten, Idee → Aufgabe, Verschieben-Menü, Sortieren, Handy-Ansicht, ohne Anmeldung).
+   SQL-Teil `notes.space` mit PGlite geprüft (zweimal ausführbar, alte App-Version harmlos).
+   **Offen, in dieser Reihenfolge:** Nutzer führt `schema.sql` aus → erst dann pushen (sonst schlägt
+   das Hochladen der Zettel fehl, weil `space` fehlt) → Barbaras Anleitung nachführen.
 
 ## Testen
 
@@ -149,7 +168,9 @@ Abgleich (sync.js):
 - Das Browser-Fenster ist oft schmaler als 760 px: Dann zeigt die App die Handy-Ansicht
   (Zettel nur im Reiter „Zettel“ sichtbar).
 - Screenshots im Browser-Fenster sind manchmal abgeschnitten; Layout lieber per JavaScript prüfen.
-- Ohne Login zeigt die App keine Schalter A/B. Zum Prüfen der Anzeige `todo-zettel.people.v1`,
+- Im Claude-Browser ist `127.0.0.1:8153` evtl. mit echtem Konto angemeldet (echte Daten!). Für Tests mit
+  erfundenen Daten `localhost:8153` nehmen (eigener Speicher, keine Sitzung; vorher `localStorage` prüfen).
+- Ohne Login zeigt die App keine Schalter A/B und keine Reiter. Zum Prüfen der Anzeige `todo-zettel.people.v1`,
   `todo-zettel.user` und `userId`/`assignees` in `todo-zettel.v1` per JavaScript setzen und neu laden.
   Nach Änderungen an JS/CSS die Dateien per `fetch(url, { cache: 'reload' })` frisch holen, der
   Browser hält sonst die alte Fassung mit derselben `?v=N` fest.

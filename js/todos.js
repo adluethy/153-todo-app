@@ -100,7 +100,8 @@
     const me = Store.me();
     const people = Store.people();
     const ids = people.map(p => p.userId);
-    if (!people.length || !me) {
+    // Mit Reitern bestimmt der gewählte Reiter, für wen eine neue Aufgabe gilt
+    if (!people.length || !me || Layers.enabled()) {
       formWho.hidden = true;
       formWho.replaceChildren();
       return;
@@ -117,14 +118,43 @@
 
   function render() {
     renderFormWho();
+    const layer = Layers.current();
+    textInput.placeholder = layer ? 'Neue Aufgabe ' + Layers.forWhom(layer) : 'Neue Aufgabe';
+    textInput.setAttribute('aria-label', textInput.placeholder);
     if (dragging || editing) {
       pendingRender = true;
       return;
     }
     pendingRender = false;
-    const items = Store.todos().slice().sort((a, b) => a.order - b.order);
+    // Nur die Aufgaben des gewählten Reiters (ohne Reiter: alle)
+    const items = Store.todos()
+      .filter(t => Layers.todoVisible(t, layer))
+      .sort((a, b) => a.order - b.order);
     list.replaceChildren(...items.map(buildRow));
+    let empty = 'Keine Aufgaben.';
+    if (layer === Layers.GEMMEL) empty = 'Keine gemeinsamen Aufgaben.';
+    else if (layer) empty = `Keine Aufgaben für ${Layers.name(layer)}.`;
+    emptyMsg.textContent = empty + ' Schreib oben die erste hinein.';
     emptyMsg.hidden = items.length > 0;
+  }
+
+  // Neue Reihenfolge der sichtbaren Aufgaben in die ganze Liste einfügen:
+  // Die sichtbaren tauschen nur ihre Plätze, die Aufgaben anderer Reiter bleiben, wo sie sind.
+  function mergeOrder(visibleIds) {
+    const visible = new Set(visibleIds);
+    let k = 0;
+    return Store.todos()
+      .slice()
+      .sort((a, b) => a.order - b.order)
+      .map(t => (visible.has(t.id) ? visibleIds[k++] : t.id));
+  }
+
+  // Meldung, wenn eine Aufgabe nach dem Umschalten von A/B aus dem Reiter verschwindet
+  function announceMove(assignees) {
+    const layer = Layers.current();
+    if (!layer || Layers.todoVisible({ assignees }, layer)) return;
+    const names = assignees.map(id => (Store.person(id) || {}).name).filter(Boolean).join(' und ');
+    App.toast(`Gilt jetzt nur für ${names} (Reiter ${names})`);
   }
 
   function checkbox(className, checked, label) {
@@ -173,7 +203,10 @@
     // Schalter A/B = für wen die Aufgabe gilt (und wer erinnert wird)
     if (Store.people().length) {
       const selected = t.assignees && t.assignees.length ? t.assignees : [t.userId];
-      const who = whoButtons(selected, next => Store.updateTodo(t.id, { assignees: next }));
+      const who = whoButtons(selected, next => {
+        Store.updateTodo(t.id, { assignees: next });
+        announceMove(next);
+      });
       const by = Store.person(t.userId);
       if (by) who.querySelectorAll('button').forEach(b => { b.title += ' · erfasst von ' + by.name; });
       line.append(who);
@@ -379,7 +412,7 @@
       li.removeAttribute('style');
       li.classList.remove('dragging');
       dragging = false;
-      Store.reorderTodos([...list.children].map(c => c.dataset.id));
+      Store.reorderTodos(mergeOrder([...list.children].map(c => c.dataset.id)));
       if (pendingRender) render();
     };
 
@@ -411,7 +444,8 @@
       return;
     }
     const dueAt = dateInput.hidden ? null : inputToIso(dateInput.value);
-    Store.addTodo(text, dueAt, null, formAssignees);
+    // Mit Reitern gilt die Aufgabe für den gewählten Reiter, sonst nach den Schaltern im Eingabefeld
+    Store.addTodo(text, dueAt, null, Layers.assigneesFor(Layers.current()) || formAssignees);
     formAssignees = null; // nächste Aufgabe wieder nur für die eigene Person
     renderFormWho();
     textInput.value = '';
@@ -424,6 +458,12 @@
 
   Store.subscribe(topic => {
     if (topic === 'todos' || topic === 'all' || topic === 'people') render();
+  });
+
+  // Anderer Reiter gewählt
+  Layers.subscribe(() => {
+    closeDateEditor();
+    render();
   });
 
   // Jede Minute neu zeichnen, damit „Heute“ und überfällige Termine stimmen

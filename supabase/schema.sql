@@ -244,6 +244,15 @@ create policy "Eigene Geräte" on public.push_subscriptions
   using (user_id = (select auth.uid()))
   with check (user_id = (select auth.uid()));
 
+-- ---------- Reiter (seit 22.10.2026) ----------
+-- Die App hat drei Reiter: einen pro Person und "Gemmel" für beide.
+-- Aufgaben richten sich nach assignees: im Reiter einer Person alle Aufgaben mit ihr,
+-- in Gemmel die Aufgaben für alle. Zettel: notes.space = Person, in deren Reiter der Zettel
+-- liegt; leer (null) = Gemmel. Bisherige Zettel bleiben leer und liegen damit in Gemmel.
+-- Wird eine Person gelöscht, wandern ihre Zettel nach Gemmel (sofern sie sie nicht selbst erfasst hat).
+
+alter table public.notes add column if not exists space uuid references auth.users (id) on delete set null;
+
 -- ---------- Live-Abgleich zwischen Geräten (Realtime) ----------
 
 do $$

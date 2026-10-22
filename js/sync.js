@@ -40,6 +40,7 @@
 
   // userId / user_id = wer den Eintrag erfasst hat (Adrian oder Barbara)
   // assignees = für wen die Aufgabe gilt (Schalter A/B), Liste von user_ids
+  // space = in welchem Reiter ein Zettel liegt (user_id einer Person, null = Gemmel)
   // (due_set_at und die Erinnerungen verwaltet die Datenbank selbst, die App schickt sie nie)
   const COLUMNS = {
     todos: {
@@ -47,7 +48,7 @@
       order: 'sort_order', createdAt: 'created_at', updatedAt: 'updated_at',
     },
     notes: {
-      id: 'id', userId: 'user_id', type: 'type', text: 'text', x: 'x', y: 'y', w: 'w', h: 'h', z: 'z',
+      id: 'id', userId: 'user_id', space: 'space', type: 'type', text: 'text', x: 'x', y: 'y', w: 'w', h: 'h', z: 'z',
       archived: 'archived', archivedAt: 'archived_at', convertedAt: 'converted_at',
       createdAt: 'created_at', updatedAt: 'updated_at',
     },

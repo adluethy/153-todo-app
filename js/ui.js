@@ -20,6 +20,7 @@
     notes: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h6"/>',
     download: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
     upload: '<path d="M12 20V9M7 14l5-5 5 5M5 4h14"/>',
+    move: '<path d="M16 3l4 4-4 4M20 7H8M8 21l-4-4 4-4M4 17h12"/>',
     cloudCheck: '<path d="M7 19a5 5 0 0 1-.9-9.9A6 6 0 0 1 17.7 9 4.5 4.5 0 0 1 17.5 19z"/><path d="m9.5 14 2 2 3.5-3.5"/>',
     cloudUp: '<path d="M7 19a5 5 0 0 1-.9-9.9A6 6 0 0 1 17.7 9 4.5 4.5 0 0 1 17.5 19z"/><path d="M12 16.5v-5M9.75 13.5 12 11.25l2.25 2.25"/>',
     cloudOff: '<path d="M7 19a5 5 0 0 1-.9-9.9A6 6 0 0 1 17.7 9 4.5 4.5 0 0 1 17.5 19z"/><path d="M3 3l18 18"/>',

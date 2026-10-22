@@ -187,10 +187,12 @@
 
     /* ---------- Zettel ---------- */
 
-    addNote(type, pos) {
+    // space: in welchem Reiter der Zettel liegt (ID einer Person; null = Gemmel)
+    addNote(type, pos, space) {
       const note = {
         id: uid(),
         userId: me, // wer den Zettel erfasst hat
+        space: space || null,
         type, // 'idee' oder 'info'
         text: '',
         x: pos.x, // Position als Anteil der Fläche (0–1), damit sie auf jedem Bildschirm passt

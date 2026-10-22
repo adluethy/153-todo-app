@@ -57,6 +57,69 @@ svg.icon { width: 18px; height: 18px; flex: none; }
 .topbar h1 { margin: 0; font-size: 17px; font-weight: 600; }
 
 .topbar-right { display: flex; align-items: center; gap: 6px; }
+.topbar { gap: 12px; }
+
+/* Reiter: eine Person oder Gemmel (für alle) */
+.layer-tabs { display: flex; gap: 4px; padding: 3px; background: #f1f0eb; border-radius: 12px; }
+.layer-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px 0 6px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+.layer-tab:hover { color: var(--text); }
+.layer-tab.active { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: var(--shadow); }
+.layer-badge {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  min-width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-soft);
+}
+.layer-badge.all { padding: 0 6px; letter-spacing: .5px; }
+.layer-tab.active .layer-badge { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* Menü „Verschieben nach“ am Zettel */
+.move-menu {
+  position: fixed;
+  z-index: 150;
+  min-width: 190px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-size: 14px;
+  color: var(--text);
+}
+.move-menu p { margin: 2px 8px 6px; font-size: 12px; color: var(--text-soft); }
+.move-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 8px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  text-align: left;
+}
+.move-menu button:hover, .move-menu button:focus-visible { background: #f1f0eb; outline: none; }
 
 .sync-status {
   display: inline-flex;
@@ -570,6 +633,11 @@ input:focus-visible { outline: 2px solid #b8cff5; border-color: var(--accent); }
 
 @media (max-width: 760px) {
   :root { --todo-cols: 24px 36px 36px minmax(0, 1fr) 36px; }
+
+  /* Reiter als eigene Zeile unter Titel und Status */
+  .topbar { flex-wrap: wrap; row-gap: 8px; }
+  .layer-tabs { order: 3; width: 100%; }
+  .layer-tab { flex: 1; justify-content: center; min-width: 0; padding: 0 8px 0 4px; font-size: 13px; gap: 6px; }
 
   .layout { grid-template-columns: minmax(0, 1fr); }
   .layout[data-view="todos"] .notes-pane,

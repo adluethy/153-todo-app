@@ -36,18 +36,31 @@ Beim ersten Start auf jedem Gerät (und in jedem Browser) einmal anmelden. Danac
 
 ## Bedienung
 
+**Reiter Adrian, Barbara und Gemmel** (oben in der Kopfzeile, am Handy unter dem Titel)
+- Jede Person hat ihren Reiter, dazu **Gemmel** für beide. Beide sehen alle drei Reiter.
+- **Aufgaben:** Im Reiter Adrian stehen alle Aufgaben mit Schalter A, also auch die gemeinsamen;
+  bei Barbara alle mit B; in Gemmel nur die Aufgaben für beide.
+- Neue Aufgaben gehören zum gewählten Reiter: bei Adrian nur A, in Gemmel A und B.
+  So kann man auch der anderen Person eine Aufgabe in ihren Reiter legen.
+- **Zettel** liegen in genau einem Reiter: Jeder Reiter hat eigene Ideen, Infos und eine eigene Ablage.
+  Umziehen: am Zettel der Knopf mit den zwei Pfeilen → „Verschieben nach …“.
+  Die Zettel von vor den Reitern liegen in Gemmel.
+- Die App merkt sich auf jedem Gerät den zuletzt gewählten Reiter (beim ersten Mal: den eigenen).
+
 **To-do**
 - Aufgabe oben eintippen, Enter oder `+`. Mit dem Kalender-Knopf daneben gleich einen Termin setzen.
 - Vor jeder Aufgabe stehen zwei runde Schalter **A** (Adrian) und **B** (Barbara): Blau = die Aufgabe gilt
-  für diese Person, und sie bekommt die Erinnerungen. Beim Erfassen ist die eigene Person eingeschaltet;
-  wer den anderen Schalter dazudrückt, macht daraus eine Aufgabe für beide. Einer bleibt immer an.
-- Die gleichen Schalter stehen auch neben dem Eingabefeld, um eine Aufgabe gleich für beide zu erfassen.
+  für diese Person, und sie bekommt die Erinnerungen. Einer bleibt immer an.
+- Mit den Schaltern wandert eine Aufgabe zwischen den Reitern: B dazuschalten → gemeinsam (auch in Gemmel);
+  A ausschalten → sie liegt nur noch bei Barbara.
+- Für wen eine neue Aufgabe gilt, bestimmt der gewählte Reiter (im Eingabefeld steht „für Adrian“ bzw. „für beide“).
 - Wer eine Aufgabe erfasst hat, zeigt der Hinweis beim Darüberfahren mit der Maus.
   Abhaken, ändern und löschen können beide alles.
 - 1. Kästchen = erledigt → Schrift wird hellgrau.
 - 2. Kästchen = löschen → geht erst, wenn die Aufgabe erledigt ist. Die Aufgabe verschwindet.
 - Auf den Text klicken, um ihn zu ändern (Enter speichert, Esc bricht ab).
-- An den Punkten links ziehen, um die Reihenfolge zu ändern.
+- An den Punkten links ziehen, um die Reihenfolge zu ändern. Die Reihenfolge ist für alle Reiter gleich;
+  Aufgaben, die im gewählten Reiter nicht zu sehen sind, bleiben an ihrem Platz.
 - Termin ändern oder entfernen: auf das Datum klicken (oder das Kalender-Symbol rechts).
 
 **Zettel**
@@ -58,7 +71,7 @@ Beim ersten Start auf jedem Gerät (und in jedem Browser) einmal anmelden. Danac
 - `×` oben rechts = schliessen. Der Zettel kommt in die **Ablage** und kann dort wieder geöffnet
   oder endgültig gelöscht werden.
 - Ideen-Zettel haben zusätzlich den Knopf „Als Aufgabe übernehmen“: Der Text wird zur Aufgabe,
-  der Zettel kommt in die Ablage. Die Aufgabe gilt für die Person, die die Idee hatte.
+  der Zettel kommt in die Ablage. Die Aufgabe kommt in den Reiter der Idee (Idee in Gemmel → Aufgabe für beide).
 
 **Handy (schmaler Bildschirm)**
 - Unten umschalten zwischen „To-do“ und „Zettel“.
@@ -136,6 +149,11 @@ Gut zu wissen:
   - [x] Erinnerungen am Android-Handy und am PC eingeschaltet, Zustellung klappt (22.10.2026)
   - [x] Barbaras Anleitung nachgeführt (Schalter A/B, Seite «Erinnerungen»)
   - [ ] Laptops und Barbaras iPhone einschalten
+- [ ] **Reiter Adrian, Barbara und Gemmel** (v=7, Entwurf in `entwurf-reiter/`)
+  - [x] Gebaut und getestet: Reiter, Filter, Zettel verschieben, Ablage pro Reiter (22.10.2026)
+  - [ ] `supabase/schema.sql` im SQL Editor ausführen (neues Feld `space` bei den Zetteln)
+  - [ ] Erst danach online stellen
+  - [ ] Barbaras Anleitung nachführen
 
 ## Dateien
 
@@ -148,6 +166,7 @@ Gut zu wissen:
 | `js/ui.js` | Icons und Kurzmeldungen |
 | `js/store.js` | Lokaler Datenspeicher auf dem Gerät |
 | `js/sync.js` | Anmelden und Abgleich mit der Online-Datenbank |
+| `js/layers.js` | Reiter Adrian, Barbara und Gemmel: was in welchem Reiter erscheint |
 | `js/todos.js` | To-do-Liste |
 | `js/notes.js` | Zettel und Ablage |
 | `js/push.js` | Erinnerungen auf diesem Gerät ein- und ausschalten, Test-Mitteilung |
@@ -157,6 +176,7 @@ Gut zu wissen:
 | `anleitung/` | Anleitung für Barbara als PDF (nur in Dropbox, nicht auf GitHub) |
 | `supabase/schema.sql` | Tabellen und Zugriffsrechte für die Online-Datenbank (im Supabase-Dashboard ausführen, darf mehrmals laufen) |
 | `manifest.webmanifest`, `sw.js`, `icons/` | Damit sich die App installieren lässt und ohne Internet startet |
+| `entwurf-reiter/` | Bilder und Entwurfsseite zu den drei Reitern (nur in Dropbox, nicht auf GitHub) |
 | `icon-entwuerfe/` | Die vier Icon-Entwürfe und `icon_bauen.py`, das die Dateien in `icons/` erzeugt (nur in Dropbox, nicht auf GitHub) |
 | `.gitignore` | Was nicht auf GitHub soll (z.B. Daten-Sicherungen) |
 | `CLAUDE.md` | Hinweise für Claude, damit es am anderen PC nahtlos weitergeht |

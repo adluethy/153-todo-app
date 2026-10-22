@@ -11,7 +11,9 @@
   const archivePanel = document.getElementById('archive');
   const archiveBody = document.getElementById('archive-body');
   const archiveClose = document.getElementById('archive-close');
+  const archiveTitle = document.getElementById('archive-title');
   const backdrop = document.getElementById('archive-backdrop');
+  const EMPTY_HINT = 'Leg mit „Neue Idee“ oder „Neue Info“ einen an.';
 
   const stackQuery = window.matchMedia('(max-width: 760px)');
   const isStack = () => stackQuery.matches;
@@ -34,8 +36,10 @@
       els.forEach(el => el.remove());
       els.clear();
     }
-    // Neueste zuerst (wichtig für den Stapel auf dem Handy)
-    const active = Store.notes()
+    // Nur die Zettel des gewählten Reiters (ohne Reiter: alle); neueste zuerst (Stapel auf dem Handy)
+    const layer = Layers.current();
+    const mine = Store.notes().filter(n => Layers.noteVisible(n));
+    const active = mine
       .filter(n => !n.archived)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     const ids = new Set(active.map(n => n.id));
@@ -58,12 +62,18 @@
         if (document.activeElement !== ta && ta.value !== n.text) ta.value = n.text;
       }
       el.style.order = String(i);
+      el.querySelector('.note-move').hidden = !layer;
       showAuthor(el, n);
       place(el, n);
     });
 
+    let where = '';
+    if (layer === Layers.GEMMEL) where = ' in Gemmel';
+    else if (layer) where = ' bei ' + Layers.name(layer);
+    boardEmpty.textContent = `Noch keine Zettel${where}. ${EMPTY_HINT}`;
     boardEmpty.hidden = active.length > 0;
-    archiveCount.textContent = String(Store.notes().length - active.length);
+    archiveCount.textContent = String(mine.length - active.length);
+    archiveTitle.textContent = layer ? 'Ablage · ' + Layers.name(layer) : 'Ablage';
     if (!archivePanel.hidden) renderArchive();
   }
 
@@ -128,6 +138,11 @@
     if (n.type === 'idee') {
       head.append(noteButton('toTodo', 'Als Aufgabe übernehmen', () => convert(id, ta)));
     }
+    const move = noteButton('move', 'In einen anderen Reiter verschieben', e => openMoveMenu(id, e.currentTarget));
+    move.classList.add('note-move');
+    move.setAttribute('aria-haspopup', 'menu');
+    move.hidden = !Layers.current();
+    head.append(move);
     head.append(noteButton('x', 'Schliessen (in die Ablage)', () => closeNote(id, el)));
 
     const by = document.createElement('div');
@@ -179,18 +194,89 @@
       return;
     }
     const note = findNote(id);
-    Store.addTodo(text, null, note && note.userId); // Aufgabe gehört der Person, die die Idee hatte
+    // Die Aufgabe kommt in den Reiter der Idee (Gemmel = für beide); erfasst hat sie, wer die Idee hatte.
+    // Ohne Reiter gilt sie wie bisher für die Person, die die Idee hatte.
+    const layer = Layers.current() && note ? Layers.spaceOf(note) : null;
+    Store.addTodo(text, null, note && note.userId, Layers.assigneesFor(layer));
     Store.archiveNote(id, true);
     pulseArchive();
-    App.toast('Als Aufgabe übernommen');
+    App.toast(layer ? `Als Aufgabe ${Layers.forWhom(layer)} übernommen` : 'Als Aufgabe übernommen');
+  }
+
+  /* ---------- Zettel in einen anderen Reiter verschieben ---------- */
+
+  let moveMenu = null;
+
+  function closeMoveMenu() {
+    if (!moveMenu) return;
+    moveMenu.remove();
+    moveMenu = null;
+    document.removeEventListener('pointerdown', onPointerOutside, true);
+  }
+
+  function onPointerOutside(e) {
+    // Der Knopf selbst schaltet das Menü per Klick um, darum hier nicht schliessen
+    if (moveMenu && !moveMenu.contains(e.target) && !e.target.closest('.note-move')) closeMoveMenu();
+  }
+
+  function openMoveMenu(id, button) {
+    const sameNote = moveMenu && moveMenu.dataset.id === id;
+    closeMoveMenu();
+    const n = findNote(id);
+    if (sameNote || !n) return; // zweiter Klick schliesst das Menü
+
+    const menu = document.createElement('div');
+    menu.className = 'move-menu';
+    menu.dataset.id = id;
+    menu.setAttribute('role', 'menu');
+    const title = document.createElement('p');
+    title.textContent = 'Verschieben nach';
+    menu.append(title);
+
+    const from = Layers.spaceOf(n);
+    Layers.list().filter(l => l.key !== from).forEach(l => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('role', 'menuitem');
+      b.append(Layers.badge(l), l.name);
+      b.addEventListener('click', () => {
+        closeMoveMenu();
+        moveNote(id, l);
+      });
+      menu.append(b);
+    });
+    document.body.append(menu);
+
+    // Unter dem Knopf, rechtsbündig, immer ganz im Fenster
+    const r = button.getBoundingClientRect();
+    const left = clamp(r.right - menu.offsetWidth, 8, window.innerWidth - menu.offsetWidth - 8);
+    let top = r.bottom + 4;
+    if (top + menu.offsetHeight > window.innerHeight - 8) top = Math.max(8, r.top - menu.offsetHeight - 4);
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+
+    moveMenu = menu;
+    document.addEventListener('pointerdown', onPointerOutside, true);
+    menu.querySelector('button').focus();
+  }
+
+  function moveNote(id, layer) {
+    const done = () => {
+      Store.updateNote(id, { space: Layers.spaceFor(layer.key), z: Store.maxZ() + 1 });
+      App.toast(layer.all ? 'Zettel liegt jetzt in Gemmel' : `Zettel liegt jetzt bei ${layer.name}`);
+    };
+    const el = els.get(id);
+    if (!el) return done();
+    el.classList.add('closing');
+    setTimeout(done, 150);
   }
 
   function addNote(type) {
-    // Neue Zettel leicht versetzt, damit sie nicht genau übereinander liegen
-    const k = Store.notes().filter(n => !n.archived && n.type === type).length % 6;
+    // Neue Zettel leicht versetzt, damit sie nicht genau übereinander liegen; sie kommen in den gewählten Reiter
+    const k = Store.notes().filter(n => !n.archived && n.type === type && Layers.noteVisible(n)).length % 6;
     const x = (type === 'idee' ? 0.03 : 0.42) + k * 0.025;
     const y = 0.04 + k * 0.06;
-    const note = Store.addNote(type, { x, y });
+    const note = Store.addNote(type, { x, y }, Layers.spaceFor(Layers.current()));
     const el = els.get(note.id);
     if (!el) return;
     if (isStack()) board.scrollTop = 0;
@@ -312,7 +398,7 @@
 
   function renderArchive() {
     const archived = Store.notes()
-      .filter(n => n.archived)
+      .filter(n => n.archived && Layers.noteVisible(n))
       .sort((a, b) => (b.archivedAt || '').localeCompare(a.archivedAt || ''));
     archiveBody.replaceChildren();
 
@@ -353,11 +439,15 @@
   archiveClose.addEventListener('click', closeArchive);
   backdrop.addEventListener('click', closeArchive);
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && !archivePanel.hidden) closeArchive();
+    if (e.key !== 'Escape') return;
+    if (moveMenu) closeMoveMenu();
+    else if (!archivePanel.hidden) closeArchive();
   });
+  board.addEventListener('scroll', closeMoveMenu);
 
   let raf = 0;
   window.addEventListener('resize', () => {
+    closeMoveMenu();
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(() => render());
   });
@@ -365,6 +455,12 @@
   Store.subscribe(topic => {
     if (topic === 'notes' || topic === 'people') render();
     if (topic === 'all') render(true);
+  });
+
+  // Anderer Reiter gewählt
+  Layers.subscribe(() => {
+    closeMoveMenu();
+    render();
   });
 
   window.Notes = { render };
