@@ -179,7 +179,8 @@ Abgleich (sync.js):
 5. **Neue Einträge melden (v=8):** gebaut 23.10.2026. SQL mit PGlite geprüft (27 Fälle auf Stand v7,
    Erinnerungs-Tests weiter grün), Dienst lokal geprüft (10 Fälle). **Online seit 23.10.2026:**
    `schema.sql` vom Nutzer ausgeführt (per REST geprüft), Dienst hochgeladen (12:16), App v=8 gepusht.
-   Offen: echte Mitteilung zwischen Adrian und Barbara ausprobieren, Barbaras Anleitung ergänzen.
+   Nutzer bestätigt: läuft und ist in Betrieb (23.10.2026). Barbaras Anleitung bewusst **nicht**
+   ergänzt (Nutzer: nicht nötig). **Erledigt.**
 
 ## Testen
 

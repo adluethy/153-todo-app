@@ -165,10 +165,10 @@ Gut zu wissen:
   - [x] Online seit 22.10.2026
   - [x] Auf den eigenen Geräten ausprobiert: funktioniert (22.10.2026)
   - [x] Barbaras Anleitung nachgeführt: neue Seite «Drei Reiter», alle Bilder neu (5 Seiten, 22.10.2026)
-- [ ] **Neue Einträge melden** (v=8): Mitteilung bei neuen Einträgen der anderen Person im Gemmel und im eigenen Reiter
+- [x] **Neue Einträge melden** (v=8): Mitteilung bei neuen Einträgen der anderen Person im Gemmel und im eigenen Reiter
   - [x] Gebaut und getestet (23.10.2026)
   - [x] `supabase/schema.sql` ausgeführt, Dienst und App online (23.10.2026)
-  - [ ] Ausprobieren; Barbaras Anleitung ergänzen
+  - [x] Ausprobiert, in Betrieb (23.10.2026); Barbaras Anleitung braucht dafür keine Ergänzung
 
 ## Dateien
 
