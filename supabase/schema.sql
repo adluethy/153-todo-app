@@ -129,6 +129,13 @@ create policy "Personen sehen" on public.people
 alter table public.todos add column if not exists assignees uuid[];
 alter table public.todos add column if not exists due_set_at timestamptz; -- wann der Termin gesetzt wurde
 
+-- Für «neue Einträge melden» (seit 23.10.2026): wer zuletzt geändert hat und wann (Datenbank-Zeit).
+-- Setzt nur der Trigger; die App schickt die Felder nie. Bisherige Zeilen: changed_by leer.
+alter table public.todos add column if not exists changed_at timestamptz not null default now();
+alter table public.todos add column if not exists changed_by uuid references auth.users (id) on delete set null;
+alter table public.notes add column if not exists changed_at timestamptz not null default now();
+alter table public.notes add column if not exists changed_by uuid references auth.users (id) on delete set null;
+
 -- Bisherige Aufgaben: gelten für die Person, die sie erfasst hat; Termine zählen ab jetzt
 update public.todos set assignees = array[user_id] where assignees is null or cardinality(assignees) = 0;
 update public.todos set due_set_at = now() where due_at is not null and due_set_at is null;
@@ -158,11 +165,14 @@ create table if not exists public.reminders_sent (
 
 -- Vor jedem Speichern einer Aufgabe: Standard für assignees, Zeitpunkt des Termins merken.
 -- Ändert sich der Termin, beginnen die Erinnerungen von vorne.
+-- Ausserdem: changed_at = jetzt, changed_by = wer gerade speichert (für «neue Einträge melden»).
 create or replace function public.todos_before_write()
 returns trigger
 language plpgsql security definer set search_path = ''
 as $$
 begin
+  new.changed_at := now();
+  new.changed_by := coalesce((select auth.uid()), new.changed_by);
   if new.assignees is null or cardinality(new.assignees) = 0 then
     new.assignees := array[new.user_id];
   end if;
@@ -184,6 +194,25 @@ drop trigger if exists todos_before_write on public.todos;
 create trigger todos_before_write
   before insert or update on public.todos
   for each row execute function public.todos_before_write();
+
+-- Dasselbe für Zettel: changed_at = jetzt, changed_by = wer gerade speichert
+create or replace function public.notes_before_write()
+returns trigger
+language plpgsql set search_path = ''
+as $$
+begin
+  new.changed_at := now();
+  new.changed_by := coalesce((select auth.uid()), new.changed_by);
+  return new;
+end;
+$$;
+
+revoke execute on function public.notes_before_write() from public, anon, authenticated;
+
+drop trigger if exists notes_before_write on public.notes;
+create trigger notes_before_write
+  before insert or update on public.notes
+  for each row execute function public.notes_before_write();
 
 -- Gerät anmelden (aus der App). Gehört das Gerät schon jemandem, übernimmt es die angemeldete Person.
 create or replace function public.save_push_subscription(p_endpoint text, p_p256dh text, p_auth text, p_device text)
@@ -252,6 +281,98 @@ create policy "Eigene Geräte" on public.push_subscriptions
 -- Wird eine Person gelöscht, wandern ihre Zettel nach Gemmel (sofern sie sie nicht selbst erfasst hat).
 
 alter table public.notes add column if not exists space uuid references auth.users (id) on delete set null;
+
+-- ---------- Neue Einträge melden (seit 23.10.2026) ----------
+-- Der Dienst auf Vercel ruft jede Minute claim_new_entries() auf. Eine Person bekommt eine Mitteilung,
+-- wenn jemand anderes einen Eintrag so gespeichert hat, dass er sie betrifft:
+--   Aufgabe: sie ist in assignees (also im Gemmel oder in ihrem Reiter);
+--   Zettel: im Gemmel (space leer) oder in ihrem Reiter.
+-- Pro Eintrag und Person höchstens einmal (news_sent). Wer speichert, kennt den Eintrag schon.
+-- Zettel erst mit Text; alles erst nach 1 Minute ohne Änderung (so kommen mehrere zusammen).
+-- Erledigte Aufgaben und abgelegte Zettel werden nur vermerkt, nicht gemeldet.
+
+alter table public.push_subscriptions add column if not exists news boolean not null default true; -- Schalter im Menü
+grant update (news) on public.push_subscriptions to authenticated;
+
+do $$
+begin
+  if not exists (select 1 from information_schema.tables where table_schema = 'public' and table_name = 'news_sent') then
+    create table public.news_sent (
+      entry_id  uuid not null, -- todos.id oder notes.id
+      user_id   uuid not null references auth.users (id) on delete cascade,
+      notified  boolean not null default false, -- true = Mitteilung geschickt, false = nur vermerkt
+      sent_at   timestamptz not null default now(),
+      primary key (entry_id, user_id)
+    );
+    -- Was heute schon jemanden betrifft, gilt für diese Person als bekannt
+    insert into public.news_sent (entry_id, user_id)
+      select t.id, p.user_id from public.todos t join public.people p
+        on p.user_id = t.user_id or p.user_id = any(t.assignees)
+      union
+      select n.id, p.user_id from public.notes n join public.people p
+        on p.user_id = n.user_id or n.space is null or n.space = p.user_id;
+  end if;
+end $$;
+
+alter table public.news_sent enable row level security; -- keine Regeln: nur der Dienst
+
+create or replace function public.claim_new_entries()
+returns table (entry_id uuid, user_id uuid, actor_name text, kind text, ort text, text text)
+language sql volatile security definer set search_path = ''
+as $$
+  -- Vermerke zu gelöschten Einträgen aufräumen
+  delete from public.news_sent s
+  where s.sent_at < now() - interval '2 days'
+    and not exists (select 1 from public.todos t where t.id = s.entry_id)
+    and not exists (select 1 from public.notes n where n.id = s.entry_id);
+
+  with eintraege as (
+    select t.id, t.changed_by, 'aufgabe'::text as kind, t.text, t.done as erledigt,
+           t.assignees, null::uuid as space, false as ist_zettel
+    from public.todos t
+    where t.changed_by is not null
+      and t.changed_at <= now() - interval '1 minute'
+      and t.changed_at > now() - interval '1 day'
+    union all
+    select n.id, n.changed_by, n.type, n.text, n.archived, null::uuid[], n.space, true
+    from public.notes n
+    where n.changed_by is not null
+      and n.changed_at <= now() - interval '1 minute'
+      and n.changed_at > now() - interval '1 day'
+  ),
+  betroffen as (
+    -- (Eintrag, Person): wer gespeichert hat (nur vermerken) und wen der Eintrag betrifft
+    select e.id, p.user_id, p.user_id = e.changed_by as selbst, e.erledigt, e.ist_zettel,
+           e.kind, e.text, e.changed_by, e.assignees, e.space
+    from eintraege e
+    join public.people p
+      on p.user_id = e.changed_by
+      or (not e.ist_zettel and p.user_id = any(e.assignees))
+      or (e.ist_zettel and (e.space is null or e.space = p.user_id))
+    where exists (select 1 from public.people a where a.user_id = e.changed_by)
+      and (p.user_id = e.changed_by or e.erledigt or btrim(e.text) <> '') -- leerer Zettel: warten
+  ),
+  neu as (
+    insert into public.news_sent (entry_id, user_id, notified)
+    select b.id, b.user_id, not (b.selbst or b.erledigt) from betroffen b
+    on conflict do nothing
+    returning news_sent.entry_id, news_sent.user_id, news_sent.notified
+  )
+  select b.id, b.user_id, a.name, b.kind,
+         case
+           when b.ist_zettel then case when b.space is null then 'gemmel' else 'dein' end
+           when (select bool_and(pe.user_id = any(b.assignees)) from public.people pe) then 'gemmel'
+           else 'dein'
+         end,
+         b.text
+  from neu n
+  join betroffen b on b.id = n.entry_id and b.user_id = n.user_id
+  join public.people a on a.user_id = b.changed_by
+  where n.notified;
+$$;
+
+revoke execute on function public.claim_new_entries() from public, anon, authenticated;
+grant execute on function public.claim_new_entries() to service_role;
 
 -- ---------- Live-Abgleich zwischen Geräten (Realtime) ----------
 

@@ -172,6 +172,16 @@ svg.icon { width: 18px; height: 18px; flex: none; }
   text-align: left;
 }
 .menu button:hover { background: #f1f0eb; }
+/* Zustand eines Schalters im Menü («an»/«aus»), rechts ausgerichtet */
+.menu-state {
+  margin-left: auto;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #eceae4;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.menu-state.on { background: var(--accent-soft); color: var(--accent); }
 .menu-note {
   margin: 4px 0 0;
   padding: 8px 10px 4px;

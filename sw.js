@@ -3,7 +3,7 @@
    ohne Internet die zuletzt geladene Version aus dem Zwischenspeicher nehmen.
    Anfragen an die Datenbank werden nie zwischengespeichert.
    Ausserdem zeigt er die Erinnerungen (Push) an, auch wenn die App geschlossen ist. */
-const CACHE = 'todo-zettel-v7';
+const CACHE = 'todo-zettel-v8';
 const FILES = [
   './',
   './index.html',

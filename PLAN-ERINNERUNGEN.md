@@ -90,6 +90,15 @@ SQL mit PGlite geprüft (26 Fälle), Dienst lokal geprüft (16 Fälle) und auf V
 3. Auf jedem Gerät im Menü «Erinnerungen einschalten» und erlauben, dann «Test-Mitteilung senden».
 4. Barbara dasselbe auf ihrem iPhone.
 
+## Erweiterung: Neue Einträge melden (23.10.2026, v=8)
+
+- Push an die andere Person bei neuen Einträgen im Gemmel und in ihrem Reiter (auch nachträglich
+  dorthin verschoben). Eigener Reiter wird nicht gemeldet; wer speichert, bekommt nichts.
+- Zettel erst mit Text; alles nach 1 Minute ohne Änderung; mehrere pro Person gebündelt.
+- Schalter pro Gerät im Menü («Neue Einträge melden», Standard an), `push_subscriptions.news`.
+- Datenbank: `changed_at`/`changed_by` (Trigger), `news_sent`, `claim_new_entries()`; Dienst ruft es im
+  selben Minuten-Lauf nach den Erinnerungen auf (eigener Fehlerbereich). Details: CLAUDE.md.
+
 ## Hinweise
 
 - iPhone: Push nur, wenn die App über Safari auf dem Home-Bildschirm liegt (ab iOS 16.4).

@@ -1,13 +1,18 @@
 /* Erinnerungen per Push: auf diesem Gerät ein- und ausschalten, Test-Mitteilung.
    Verschickt werden die Erinnerungen vom Dienst auf Vercel (Ordner push/), 1 Tag und
-   2 Stunden vor dem Termin, an alle Geräte der Personen, für die die Aufgabe gilt (Schalter A/B). */
+   2 Stunden vor dem Termin, an alle Geräte der Personen, für die die Aufgabe gilt (Schalter A/B).
+   Ausserdem (Schalter «Neue Einträge melden», pro Gerät): neue Einträge der anderen Person im
+   Gemmel und im eigenen Reiter. */
 (function () {
   'use strict';
 
   const ON_KEY = 'todo-zettel.push'; // 'on', wenn auf diesem Gerät eingeschaltet
+  const NEWS_KEY = 'todo-zettel.push.news'; // 'off', wenn neue Einträge hier nicht gemeldet werden
   const cfg = window.APP_CONFIG || {};
   const toggleBtn = document.querySelector('[data-action="push"]');
   const testBtn = document.querySelector('[data-action="push-test"]');
+  const newsBtn = document.querySelector('[data-action="push-news"]');
+  const newsState = newsBtn.querySelector('.menu-state');
   const toggleLabel = toggleBtn.querySelector('.push-label');
 
   const isIos = () => /iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -34,6 +39,47 @@
     toggleLabel.textContent = on ? 'Erinnerungen ausschalten' : 'Erinnerungen einschalten';
     toggleBtn.querySelector('svg').outerHTML = Icon(on ? 'bellOff' : 'bell');
     testBtn.hidden = !on;
+    newsBtn.hidden = !on;
+    if (on) showNews(readNews());
+  }
+
+  /* ---------- Schalter «Neue Einträge melden» (pro Gerät, gespeichert in push_subscriptions.news) ---------- */
+
+  function readNews() {
+    try { return localStorage.getItem(NEWS_KEY) !== 'off'; } catch (err) { return true; }
+  }
+
+  function showNews(on) {
+    try {
+      if (on) localStorage.removeItem(NEWS_KEY);
+      else localStorage.setItem(NEWS_KEY, 'off');
+    } catch (err) { /* egal */ }
+    newsState.textContent = on ? 'an' : 'aus';
+    newsState.classList.toggle('on', on);
+    newsBtn.title = on
+      ? 'Neue Einträge der anderen Person im Gemmel und in deinem Reiter werden auf diesem Gerät gemeldet'
+      : 'Neue Einträge werden auf diesem Gerät nicht gemeldet';
+  }
+
+  // Stand aus der Datenbank holen (gilt, falls er auf einem anderen Weg geändert wurde)
+  async function loadNews(sub) {
+    const { data, error } = await Sync.client().from('push_subscriptions').select('news').eq('endpoint', sub.endpoint);
+    if (!error && data && data.length) showNews(data[0].news !== false);
+  }
+
+  async function toggleNews() {
+    const next = !readNews();
+    try {
+      const sub = await subscription(false);
+      if (!sub) throw new Error('Gerät nicht eingetragen');
+      const { error } = await Sync.client().from('push_subscriptions').update({ news: next }).eq('endpoint', sub.endpoint);
+      if (error) throw error;
+      showNews(next);
+      App.toast(next ? 'Neue Einträge werden auf diesem Gerät gemeldet' : 'Neue Einträge werden auf diesem Gerät nicht mehr gemeldet');
+    } catch (err) {
+      console.error('Neue Einträge melden', err);
+      App.toast('Umschalten hat nicht geklappt: ' + (err.message || err));
+    }
   }
 
   // Öffentlicher VAPID-Schlüssel (Base64url) als Bytes
@@ -100,9 +146,11 @@
       return;
     }
     try {
-      await save(await subscription(true));
+      const sub = await subscription(true);
+      await save(sub);
       writeOn(true);
       showState(true);
+      loadNews(sub).catch(() => {});
       App.toast('Erinnerungen auf diesem Gerät eingeschaltet');
     } catch (err) {
       console.error('Erinnerungen einschalten', err);
@@ -175,6 +223,7 @@
       try {
         const sub = await subscription(true); // ging das Abo verloren, still neu anlegen
         await save(sub);
+        loadNews(sub).catch(() => {});
       } catch (err) {
         console.warn('Erinnerungen: Gerät nicht eingetragen', err);
         on = Boolean(await subscription(false).catch(() => null));
@@ -193,5 +242,5 @@
   Sync.onAuthChange(() => { refresh(); });
   refresh();
 
-  window.Push = { toggle, test, forget };
+  window.Push = { toggle, test, forget, toggleNews };
 })();

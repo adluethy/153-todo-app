@@ -18,7 +18,7 @@ Der Ordner liegt in Dropbox und wird an mehreren PCs bearbeitet.
 - **Bei jeder Änderung an CSS/JS:** in `index.html` die Version `?v=N` bei *allen* CSS/JS-Links
   um eins erhöhen und in `sw.js` die `CACHE`-Version gleich setzen. Sonst mischt der Browser
   nach einem Update bis zu 10 Minuten alte und neue Dateien (GitHub Pages speichert 10 Min zwischen).
-  Aktuell: `v=7`. Neue App-Dateien zusätzlich in `sw.js` → `FILES` eintragen.
+  Aktuell: `v=8`. Neue App-Dateien zusätzlich in `sw.js` → `FILES` eintragen.
 - App-Icon (seit 22.10.2026, v=5): Mathefrosch (Favicon von mathefrosch.com) vor blauem und gelbem Zettel,
   vom Nutzer aus vier Entwürfen gewählt. Alle Dateien in `icons/` erzeugt `icon-entwuerfe/icon_bauen.py`
   (Ordner nur in Dropbox, per `.git/info/exclude` nicht auf GitHub). Nach neuem Icon Version erhöhen;
@@ -54,6 +54,12 @@ Der Ordner liegt in Dropbox und wird an mehreren PCs bearbeitet.
   - Ohne Anmeldung oder mit weniger als zwei Personen: keine Reiter, alles sichtbar (wie früher).
 - Erinnerungen (Phase 3, Entscheide 22.10.2026): Web Push, fest **1 Tag und 2 Std.** vor dem Termin, an alle
   Geräte der eingeschalteten Personen. Keine Ruhezeit in der Nacht. Kein WhatsApp/SMS. Plan: `PLAN-ERINNERUNGEN.md`.
+- Neue Einträge melden (v=8, Entscheid 23.10.2026): Push an die **andere** Person, wenn sie einen Eintrag
+  in den **Gemmel** oder in **deren Reiter** legt (Aufgabe: Person in `assignees`; Zettel: `space` leer
+  oder = Person). Was jemand in seinem eigenen Reiter notiert, wird nicht gemeldet; wer speichert,
+  bekommt nichts. Zettel erst mit Text; alles nach 1 Minute ohne Änderung, mehrere gebündelt.
+  Auch Verschieben in den Gemmel/fremden Reiter zählt (erstmals betroffen). Schalter pro Gerät im Menü
+  («Neue Einträge melden», Standard an). («Gemmel» = Name des gemeinsamen Reiters, kein Tippfehler.)
 - Hosting GitHub Pages + Datenbank Supabase bleiben vorerst (Entscheid 22.10.2026).
   Öffentliches Repo ist ok (Daten sind privat in Supabase).
 - **Der Nutzer hat einen bezahlten Vercel-Account (Pro)** und möchte, dass dessen Möglichkeiten bei
@@ -127,6 +133,15 @@ in snake_case (`order` → `sort_order`, `userId` → `user_id` mit Default `aut
 - push.js (App): Menü «Erinnerungen ein-/ausschalten», «Test-Mitteilung senden»; localStorage
   `todo-zettel.push` = `'on'`. Erlaubnis nur im Klick (iPhone). Abmelden trägt das Gerät vorher aus.
   `sw.js` zeigt Mitteilungen (`push`) und öffnet die App (`notificationclick`); Symbol `icons/badge-96.png`.
+- Neue Einträge: `todos/notes.changed_at` + `changed_by` (nur Trigger, = `auth.uid()` beim Speichern; alte
+  Zeilen `changed_by` leer). `news_sent (entry_id, user_id, notified)`: pro Eintrag und Person höchstens
+  einmal; beim ersten Ausführen mit allem gefüllt, was jemanden schon betrifft. `claim_new_entries()`
+  (nur `service_role`) gibt `(entry_id, user_id, actor_name, kind, ort 'gemmel'|'dein', text)` zurück;
+  vermerkt dabei auch die speichernde Person (kennt den Eintrag) und Erledigtes/Abgelegtes still.
+  Fenster: `changed_at` zwischen jetzt − 1 Tag und jetzt − 1 Minute. `push_subscriptions.news`
+  (Standard true, `grant update (news)`), App liest/schreibt per Endpoint, Kopie `todo-zettel.push.news`.
+  Dienst: zweiter Schritt in `api/erinnern.js` mit eigenem try/catch (stört Erinnerungen nie, kein
+  zweiter Versuch); `neuigkeiten()` in `lib/push.js` bündelt pro Person.
 
 Abgleich (sync.js):
 - Warteschlange `todo-zettel.outbox.v1` (je Eintrag `table:id` → op + Versionszähler), hochgeladen
@@ -161,6 +176,10 @@ Abgleich (sync.js):
    Online-Version lädt v=7 ohne Fehler. Lehre bestätigt: neue Spalten erst in Supabase, dann pushen.
    Barbaras Anleitung auf v=7 nachgeführt (5 S., neue Seite 4 «Drei Reiter», Bilder mit Reiter Barbara).
    Test mit echter Anmeldung: Nutzer bestätigt „funktioniert bestens“ (22.10.2026). **Erledigt.**
+5. **Neue Einträge melden (v=8):** gebaut 23.10.2026. SQL mit PGlite geprüft (27 Fälle auf Stand v7,
+   Erinnerungs-Tests weiter grün), Dienst lokal geprüft (10 Fälle). **Online seit 23.10.2026:**
+   `schema.sql` vom Nutzer ausgeführt (per REST geprüft), Dienst hochgeladen (12:16), App v=8 gepusht.
+   Offen: echte Mitteilung zwischen Adrian und Barbara ausprobieren, Barbaras Anleitung ergänzen.
 
 ## Testen
 

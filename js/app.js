@@ -51,6 +51,7 @@
     if (btn.dataset.action === 'logout') Sync.logout();
     if (btn.dataset.action === 'push') Push.toggle(); // direkt beim Antippen (iPhone verlangt das)
     if (btn.dataset.action === 'push-test') Push.test();
+    if (btn.dataset.action === 'push-news') Push.toggleNews();
   });
 
   /* ---------- Sicherung ---------- */

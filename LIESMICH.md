@@ -99,6 +99,16 @@ Beim ersten Start auf jedem Gerät (und in jedem Browser) einmal anmelden. Danac
 - Verschickt werden die Erinnerungen von einem kleinen Dienst auf Vercel, der jede Minute nachschaut
   (Ordner `push/`). Fällt er einmal aus, holt er Verpasstes bis 6 Stunden später nach.
 
+**Neue Einträge melden**
+- Legt die andere Person etwas **in den Gemmel** oder **in deinen Reiter** (eine Aufgabe oder einen Zettel),
+  kommt eine Mitteilung, z.B. «Gemmel: neue Aufgabe von Barbara» oder «Für dich: neue Idee von Barbara».
+  Auch wenn sie einen Eintrag nachträglich dorthin verschiebt.
+- Was sie in ihrem eigenen Reiter notiert, wird nicht gemeldet. Wer etwas erfasst, bekommt selbst keine Mitteilung.
+- Zettel werden gemeldet, sobald Text drin steht und eine Minute lang nichts mehr geändert wurde.
+  Mehrere neue Einträge kommen zusammen in einer Mitteilung («Barbara: 3 neue Einträge»).
+- Ein- und ausschalten pro Gerät: Menü `⋯` → „Neue Einträge melden“ (rechts steht „an“ oder „aus“).
+  Der Punkt erscheint, sobald auf dem Gerät die Erinnerungen eingeschaltet sind.
+
 ## Konten
 
 | Dienst | Konto | Wofür |
@@ -155,6 +165,10 @@ Gut zu wissen:
   - [x] Online seit 22.10.2026
   - [x] Auf den eigenen Geräten ausprobiert: funktioniert (22.10.2026)
   - [x] Barbaras Anleitung nachgeführt: neue Seite «Drei Reiter», alle Bilder neu (5 Seiten, 22.10.2026)
+- [ ] **Neue Einträge melden** (v=8): Mitteilung bei neuen Einträgen der anderen Person im Gemmel und im eigenen Reiter
+  - [x] Gebaut und getestet (23.10.2026)
+  - [x] `supabase/schema.sql` ausgeführt, Dienst und App online (23.10.2026)
+  - [ ] Ausprobieren; Barbaras Anleitung ergänzen
 
 ## Dateien
 
