@@ -60,6 +60,10 @@ Der Ordner liegt in Dropbox und wird an mehreren PCs bearbeitet.
   bekommt nichts. Zettel erst mit Text; alles nach 1 Minute ohne Änderung, mehrere gebündelt.
   Auch Verschieben in den Gemmel/fremden Reiter zählt (erstmals betroffen). Schalter pro Gerät im Menü
   («Neue Einträge melden», Standard an). («Gemmel» = Name des gemeinsamen Reiters, kein Tippfehler.)
+- **SQL-Änderungen führt der Nutzer selbst im Supabase SQL Editor aus** (Entscheid 23.10.2026): keine
+  Supabase-CLI, kein Datenbank-Passwort, kein persönlicher Zugriffsschlüssel für Claude. Ablauf bleibt:
+  SQL schreiben, mit PGlite prüfen, Nutzer führt `schema.sql` aus, Claude prüft per REST mit dem
+  öffentlichen Schlüssel (Feld vorhanden → 200, Funktion für anon → 401 «permission denied»).
 - Hosting GitHub Pages + Datenbank Supabase bleiben vorerst (Entscheid 22.10.2026).
   Öffentliches Repo ist ok (Daten sind privat in Supabase).
 - **Der Nutzer hat einen bezahlten Vercel-Account (Pro)** und möchte, dass dessen Möglichkeiten bei
